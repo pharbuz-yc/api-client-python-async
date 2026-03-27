@@ -60,11 +60,12 @@ async def main():
         account_uuid=os.getenv("DYNATRACE_ACCOUNT_UUID"),
         base_url=os.getenv("DYNATRACE_TENANT_URL"),
         log=setup_log(),
+        scope="environment-api:metrics:read environment-api:entities:read",
     ) as dt:
         # TODO - Code here as you add new endpoints, during development
         # Any requests are going to be recorded in the `test/mock` folder and can later be used to write tests.
-        for m in await dt.metrics.list(page_size=500):
-            print(m.metric_id)
+        async for metric in await dt.metrics.list(page_size=500):
+            print(metric.metric_id)
 
 
 if __name__ == "__main__":
