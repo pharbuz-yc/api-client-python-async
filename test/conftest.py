@@ -19,6 +19,7 @@ class MockResponse:
         self.headers = {}
         self.text = json.dumps(json_data) if json_data is not None else ""
         self.content = self.text.encode() if self.text else None
+        self.status_code = 200
 
     def json(self):
         return self.json_data
@@ -54,5 +55,10 @@ async def local_make_request(
 @pytest.fixture(autouse=True)
 def dt():
     with mock.patch.object(HttpClient, "make_request", new=local_make_request):
-        dt = Dynatrace("mock_tenant", "mock_token")
+        dt = Dynatrace(
+            client_id="mock_client_id",
+            client_secret="mock_client_secret",
+            account_uuid="mock_account_uuid",
+            base_url="mock_tenant",
+        )
         yield dt

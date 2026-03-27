@@ -55,8 +55,10 @@ def setup_log():
 
 async def main():
     async with Dynatrace(
-        os.getenv("DYNATRACE_TENANT_URL"),
-        os.getenv("DYNATRACE_API_TOKEN"),
+        client_id=os.getenv("DYNATRACE_OAUTH_CLIENT_ID"),
+        client_secret=os.getenv("DYNATRACE_OAUTH_CLIENT_SECRET"),
+        account_uuid=os.getenv("DYNATRACE_ACCOUNT_UUID"),
+        base_url=os.getenv("DYNATRACE_TENANT_URL"),
         log=setup_log(),
     ) as dt:
         # TODO - Code here as you add new endpoints, during development

@@ -21,6 +21,8 @@ from typing import Any
 
 import httpx
 
+from dynatrace.auth import build_dynatrace_oauth_client
+
 TOO_MANY_REQUESTS_WAIT = "wait"
 
 
@@ -28,7 +30,9 @@ class HttpClient:
     def __init__(
         self,
         base_url: str,
-        token: str,
+        client_id: str,
+        client_secret: str,
+        account_uuid: str,
         log: logging.Logger = None,
         proxies: dict[str, str] | None = None,
         too_many_requests_strategy=None,
@@ -40,7 +44,10 @@ class HttpClient:
         print_bodies: bool = False,
         timeout: int | None = None,
         headers: dict[str, str] | None = None,
-        verify: bool = False,
+        scope: str = "account-uac-read",
+        sso_base_url: str = "https://sso.dynatrace.com",
+        verify_ssl: bool = False,
+        token_timeout: int = 30,
         follow_redirects: bool = True,
     ):
         while base_url.endswith("/"):
@@ -49,14 +56,20 @@ class HttpClient:
 
         self.headers = headers.copy() if headers else {}
         self.proxies = proxies or {}
-        self.auth_header = {"Authorization": f"Api-Token {token}"}
+        self.auth_header: dict[str, str] = {}
         self.print_bodies = print_bodies
         self.too_many_requests_strategy = too_many_requests_strategy
         self.timeout = timeout
         self.retries = retries
         self.retry_delay_s = retry_delay_ms / 1000
-        self.verify = verify
+        self.verify = verify_ssl
         self.follow_redirects = follow_redirects
+        self.scope = scope
+        self.sso_base_url = sso_base_url
+        self.token_timeout = token_timeout
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.account_uuid = account_uuid
 
         self.log = log
         if self.log is None:
@@ -76,23 +89,9 @@ class HttpClient:
         self.mc_sso_csrf_cookie = mc_sso_csrf_cookie
 
         self.client = self._create_client()
-        self.http_client = (
-            self._create_client(proxy=self.proxies.get("http"))
-            if self.proxies.get("http")
-            else self.client
-        )
-        self.https_client = (
-            self._create_client(proxy=self.proxies.get("https"))
-            if self.proxies.get("https")
-            else self.client
-        )
 
     async def aclose(self) -> None:
-        closed_clients: set[int] = set()
-        for client in (self.client, self.http_client, self.https_client):
-            if id(client) not in closed_clients:
-                closed_clients.add(id(client))
-                await client.aclose()
+        await self.client.aclose()
 
     async def __aenter__(self) -> "HttpClient":
         return self
@@ -132,20 +131,38 @@ class HttpClient:
             }
         return None
 
-    def _create_client(self, proxy: str | None = None) -> httpx.AsyncClient:
-        return httpx.AsyncClient(
-            verify=self.verify,
+    def _build_mounts(self) -> dict[str, httpx.AsyncBaseTransport]:
+        mounts = {}
+        for scheme in ("http", "https"):
+            proxy = self.proxies.get(scheme)
+            if proxy:
+                mounts[f"{scheme}://"] = httpx.AsyncHTTPTransport(
+                    proxy=proxy,
+                    verify=self.verify,
+                    retries=0,
+                )
+        return mounts
+
+    def _create_client(self):
+        mounts = self._build_mounts()
+        return build_dynatrace_oauth_client(
+            sso_base_url=self.sso_base_url,
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            account_uuid=self.account_uuid,
+            scope=self.scope,
+            verify_ssl=self.verify,
+            token_timeout=self.token_timeout,
             timeout=self.timeout,
-            proxy=proxy,
             follow_redirects=self.follow_redirects,
-            transport=httpx.AsyncHTTPTransport(retries=0),
+            mounts=mounts or None,
+            transport=httpx.AsyncHTTPTransport(
+                verify=self.verify,
+                retries=0,
+            ),
         )
 
     def _get_client(self, url: str) -> httpx.AsyncClient:
-        if url.startswith("https://"):
-            return self.https_client
-        if url.startswith("http://"):
-            return self.http_client
         return self.client
 
     @staticmethod

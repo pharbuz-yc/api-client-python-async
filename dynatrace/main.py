@@ -80,8 +80,12 @@ from dynatrace.http_client import HttpClient
 class Dynatrace:
     def __init__(
         self,
-        base_url: str,
-        token: str,
+        client_id: str,
+        client_secret: str,
+        account_uuid: str,
+        scope: str = "account-uac-read",
+        sso_base_url: str = "https://sso.dynatrace.com",
+        base_url: str = "https://api.dynatrace.com",
         log: logging.Logger = None,
         proxies: dict = None,
         too_many_requests_strategy=None,
@@ -93,15 +97,23 @@ class Dynatrace:
         print_bodies=False,
         timeout: int | None = None,
         headers: dict | None = None,
+        verify_ssl: bool = False,
+        token_timeout: int = 30,
     ):
         if not base_url:
             raise ValueError("base_url is required")
-        if not token:
-            raise ValueError("token is required")
+        if not client_id:
+            raise ValueError("client_id is required")
+        if not client_secret:
+            raise ValueError("client_secret is required")
+        if not account_uuid:
+            raise ValueError("account_uuid is required")
 
         self.__http_client = HttpClient(
             base_url,
-            token,
+            client_id,
+            client_secret,
+            account_uuid,
             log,
             proxies,
             too_many_requests_strategy,
@@ -113,6 +125,10 @@ class Dynatrace:
             print_bodies,
             timeout,
             headers,
+            scope,
+            sso_base_url,
+            verify_ssl,
+            token_timeout,
         )
 
         self.activegates: ActiveGateService = ActiveGateService(self.__http_client)
