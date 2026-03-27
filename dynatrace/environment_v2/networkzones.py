@@ -29,30 +29,30 @@ class NetworkZoneService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList["NetworkZone"]:
+    async def list(self) -> PaginatedList["NetworkZone"]:
         """Lists all network zones. No params
 
         :return: a list of Network Zones with details
         """
-        return PaginatedList(
+        return await PaginatedList(
             NetworkZone,
             self.__http_client,
             target_url=self.ENDPOINT,
             list_item="networkZones",
-        )
+        ).initialize()
 
-    def get(self, networkzone_id: str):
+    async def get(self, networkzone_id: str):
         """Gets parameters of specified network zone
 
         :param networkzone_id: the ID of the network zone
         :return: a Network Zone + details
         """
-        response = self.__http_client.make_request(
-            f"{self.ENDPOINT}/{networkzone_id}"
+        response = (
+            await self.__http_client.make_request(f"{self.ENDPOINT}/{networkzone_id}")
         ).json()
         return NetworkZone(raw_element=response)
 
-    def update(
+    async def update(
         self,
         networkzone_id: str,
         alternate_zones: builtins.list[str] | None = None,
@@ -66,37 +66,37 @@ class NetworkZoneService:
         :return: HTTP response
         """
         params = {"alternativeZones": alternate_zones, "description": description}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{networkzone_id}", params=params, method="PUT"
         )
 
-    def delete(self, networkzone_id: str):
+    async def delete(self, networkzone_id: str):
         """Deletes the specified network zone
 
         :param networkzone_id: the ID of the network zone
         :return: HTTP response
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{networkzone_id}", method="DELETE"
         )
 
-    def getGlobalConfig(self):
+    async def getGlobalConfig(self):
         """Gets the global configuration of network zones. No params
         :return: Network Zone Global Settings object
         """
-        response = self.__http_client.make_request(
-            path=self.ENDPOINT_GLOBALSETTINGS
+        response = (
+            await self.__http_client.make_request(path=self.ENDPOINT_GLOBALSETTINGS)
         ).json()
         return NetworkZoneSettings(raw_element=response)
 
-    def updateGlobalConfig(self, configuration: bool):
+    async def updateGlobalConfig(self, configuration: bool):
         """Updates the global configuration of network zones.
 
         :param configuration: boolean setting to enable/disable NZs
         :return: HTTP response
         """
         params = {"networkZonesEnabled": configuration}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=self.ENDPOINT_GLOBALSETTINGS, method="PUT", params=params
         )
 

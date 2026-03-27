@@ -16,7 +16,7 @@ limitations under the License.
 
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.schemas import (
     AutoUpdateSetting,
@@ -34,27 +34,27 @@ class OneAgentEnvironmentWideConfigService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def get(self) -> "EnvironmentAutoUpdateConfig":
+    async def get(self) -> "EnvironmentAutoUpdateConfig":
         """Gets the environment-wide configuration of OneAgents auto-update.
 
         :returns EnvironmentAutoUpdateConfig: the auto-update configuration for this environment
         """
-        response = self.__http_client.make_request(path=self.ENDPOINT).json()
+        response = (await self.__http_client.make_request(path=self.ENDPOINT)).json()
         return EnvironmentAutoUpdateConfig(
             raw_element=response, http_client=self.__http_client
         )
 
-    def get_technologies(self) -> "TechMonitoringList":
+    async def get_technologies(self) -> "TechMonitoringList":
         """Gets the global monitoring configuration of technologies.
 
         :returns TechMonitoringList: the technologies monitoring configuration for this environment
         """
-        response = self.__http_client.make_request(
-            path="/api/config/v1/technologies"
+        response = (
+            await self.__http_client.make_request(path="/api/config/v1/technologies")
         ).json()
         return TechMonitoringList(raw_element=response)
 
-    def put(self, config: "EnvironmentAutoUpdateConfig") -> "Response":
+    async def put(self, config: "EnvironmentAutoUpdateConfig") -> "Response":
         """Updates the environment-wide configuration of OneAgents auto-update
 
         OneAgents are updated several minutes after the change of configuration.
@@ -64,9 +64,9 @@ class OneAgentEnvironmentWideConfigService:
 
         :returns Response: HTTP Response to the Request
         """
-        return config.put()
+        return await config.put()
 
-    def is_valid(self, config: "EnvironmentAutoUpdateConfig") -> bool:
+    async def is_valid(self, config: "EnvironmentAutoUpdateConfig") -> bool:
         """Validates the payload for the put function
 
         :param config: a global auto-update configuration object
@@ -74,10 +74,12 @@ class OneAgentEnvironmentWideConfigService:
         :returns bool: True if valid, false otherwise.
         """
         try:
-            self.__http_client.make_request(
-                path=f"{self.ENDPOINT}/validator",
-                method="POST",
-                params=config.to_json(),
+            (
+                await self.__http_client.make_request(
+                    path=f"{self.ENDPOINT}/validator",
+                    method="POST",
+                    params=config.to_json(),
+                )
             )
         except Exception as e:
             print(e.args)
@@ -104,8 +106,8 @@ class EnvironmentAutoUpdateConfig(DynatraceObject):
             "updateWindows": self.update_windows.to_json(),
         }
 
-    def put(self) -> "Response":
-        return self._http_client.make_request(
+    async def put(self) -> "Response":
+        return await self._http_client.make_request(
             path=OneAgentEnvironmentWideConfigService.ENDPOINT,
             method="PUT",
             params=self.to_json(),

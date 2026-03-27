@@ -8,21 +8,23 @@ from dynatrace.environment_v2.monitored_entities import EntityId, EntityStub
 from dynatrace.environment_v2.schemas import ManagementZone
 from dynatrace.pagination import PaginatedList
 from dynatrace.utils import int64_to_datetime
+from test.async_utils import collect
 
 PROBLEM_ID = "-1719139739592062093_1623004451641V2"
 COMMENT_ID = "-7228967546616810529_1623004451641"
 
 
-def test_list(dt: Dynatrace):
-    problems = dt.problems.list(time_from="now-3d")
+async def test_list(dt: Dynatrace):
+    problems = await dt.problems.list(time_from="now-3d")
 
     assert isinstance(problems, PaginatedList)
-    assert len(list(problems)) == 2
-    assert all(isinstance(p, pb.Problem) for p in problems)
+    problem_list = await collect(problems)
+    assert len(problem_list) == 2
+    assert all(isinstance(p, pb.Problem) for p in problem_list)
 
 
-def test_get(dt: Dynatrace):
-    problem = dt.problems.get(problem_id=PROBLEM_ID)
+async def test_get(dt: Dynatrace):
+    problem = await dt.problems.get(problem_id=PROBLEM_ID)
 
     # type checks
     assert isinstance(problem, pb.Problem)
@@ -98,8 +100,8 @@ def test_get(dt: Dynatrace):
     assert len(problem.recent_comments.comments) == 2
 
 
-def test_close(dt: Dynatrace):
-    close_result = dt.problems.close(
+async def test_close(dt: Dynatrace):
+    close_result = await dt.problems.close(
         problem_id=PROBLEM_ID, message="Closing this. 1234"
     )
 
@@ -120,16 +122,19 @@ def test_close(dt: Dynatrace):
     assert close_result.closing
 
 
-def test_list_comments(dt: Dynatrace):
-    comments = dt.problems.list_comments(problem_id=PROBLEM_ID, page_size=20)
+async def test_list_comments(dt: Dynatrace):
+    comments = await dt.problems.list_comments(problem_id=PROBLEM_ID, page_size=20)
 
     assert isinstance(comments, PaginatedList)
-    assert len(list(comments)) == 2
-    assert all(isinstance(c, pb.Comment) for c in comments)
+    comment_list = await collect(comments)
+    assert len(comment_list) == 2
+    assert all(isinstance(c, pb.Comment) for c in comment_list)
 
 
-def test_get_comment(dt: Dynatrace):
-    comment = dt.problems.get_comment(problem_id=PROBLEM_ID, comment_id=COMMENT_ID)
+async def test_get_comment(dt: Dynatrace):
+    comment = await dt.problems.get_comment(
+        problem_id=PROBLEM_ID, comment_id=COMMENT_ID
+    )
 
     assert isinstance(comment, pb.Comment)
 

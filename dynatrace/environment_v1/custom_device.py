@@ -149,9 +149,9 @@ class CustomDevicePushMessage(DynatraceObject):
         self.__series = series
         self._raw_element["series"] = [s._raw_element for s in self.__series]
 
-    def post(self, only_valid_data_points=False):
+    async def post(self, only_valid_data_points=False):
         try:
-            response = self._http_client.make_request(
+            response = await self._http_client.make_request(
                 f"/api/v1/entity/infrastructure/custom/{self.device_id}",
                 params=self._raw_element,
                 method="POST",
@@ -182,7 +182,7 @@ class CustomDevicePushMessage(DynatraceObject):
                         >= max_timestamp
                     ]
                 self._raw_element["series"] = [s._raw_element for s in self.series]
-                return self.post()
+                return await self.post()
             else:
                 raise e
 

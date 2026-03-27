@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.endpoint import EndpointShortRepresentation
 from dynatrace.dynatrace_object import DynatraceObject
@@ -27,34 +27,34 @@ class PluginService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList["PluginShortRepresentation"]:
+    async def list(self) -> PaginatedList["PluginShortRepresentation"]:
         """
         List all uploaded plugins
         """
-        return PaginatedList(
+        return await PaginatedList(
             PluginShortRepresentation,
             self.__http_client,
             "/api/config/v1/plugins",
             list_item="values",
-        )
+        ).initialize()
 
-    def list_states(self, plugin_id) -> PaginatedList["PluginState"]:
+    async def list_states(self, plugin_id) -> PaginatedList["PluginState"]:
         """
         List the states of the specified plugin
         """
-        return PaginatedList(
+        return await PaginatedList(
             PluginState,
             self.__http_client,
             f"/api/config/v1/plugins/{plugin_id}/states",
             list_item="states",
-        )
+        ).initialize()
 
-    def delete(self, plugin_id) -> Response:
+    async def delete(self, plugin_id) -> Response:
         """
         Deletes the ZIP file of the specified plugin
         :param plugin_id: The ID of the plugin to be deleted
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/config/v1/plugins/{plugin_id}/binary", method="DELETE"
         )
 
@@ -72,11 +72,11 @@ class PluginState(DynatraceObject):
 
 
 class PluginShortRepresentation(EntityShortRepresentation):
-    def delete(self) -> Response:
+    async def delete(self) -> Response:
         """
         Deletes the ZIP file of this plugin
         """
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             f"/api/config/v1/plugins/{self.id}/binary", method="DELETE"
         )
 

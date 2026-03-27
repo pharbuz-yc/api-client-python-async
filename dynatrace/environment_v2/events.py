@@ -39,7 +39,7 @@ class EventServiceV2:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         page_size: int | None = None,
         time_from: datetime | str | None = None,
@@ -70,27 +70,29 @@ class EventServiceV2:
             "eventSelector": event_selector,
             "entitySelector": entity_selector,
         }
-        return PaginatedList(
+        return await PaginatedList(
             target_class=Event,
             http_client=self.__http_client,
             target_url=self.ENDPOINT_EVENTS,
             list_item="events",
             target_params=params,
-        )
+        ).initialize()
 
-    def get(self, event_id: str) -> "Event":
+    async def get(self, event_id: str) -> "Event":
         """Gets the properties of an event referenced by ID.
 
         :param event_id: The ID of the required event.
 
         :returns Event: the requested event
         """
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_EVENTS}/{event_id}"
         )
         return Event(raw_element=response.json(), http_client=self.__http_client)
 
-    def list_types(self, page_size: int | None = None) -> "PaginatedList[EventType]":
+    async def list_types(
+        self, page_size: int | None = None
+    ) -> "PaginatedList[EventType]":
         """Lists all event types.
 
         :param page_size: The amount of event types in a single response payload. The maximal allowed page size is 500. If not set, 100 is used.
@@ -98,27 +100,27 @@ class EventServiceV2:
         :returns PaginatedList[EventType]: the list of event types
         """
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             target_class=EventType,
             http_client=self.__http_client,
             target_url=self.ENDPOINT_TYPES,
             list_item="eventTypeInfos",
             target_params=params,
-        )
+        ).initialize()
 
-    def get_type(self, event_type: str) -> "EventType":
+    async def get_type(self, event_type: str) -> "EventType":
         """Gets the properties of a specific event type.
 
         :param event_type: The event type you're inquiring.
 
         :returns EventType: the event type requested
         """
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_TYPES}/{event_type}"
         )
         return EventType(raw_element=response.json(), http_client=self.__http_client)
 
-    def ingest(
+    async def ingest(
         self,
         event_type: str,
         title: str,
@@ -150,8 +152,10 @@ class EventServiceV2:
             "properties": properties,
         }
 
-        return self.__http_client.make_request(
-            f"{self.ENDPOINT_INGEST}", method="POST", params=params
+        return (
+            await self.__http_client.make_request(
+                f"{self.ENDPOINT_INGEST}", method="POST", params=params
+            )
         ).json()
 
 

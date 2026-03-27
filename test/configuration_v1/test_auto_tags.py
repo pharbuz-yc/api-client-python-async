@@ -14,21 +14,21 @@ from dynatrace.environment_v2.schemas import ConfigurationMetadata
 from dynatrace.pagination import PaginatedList
 
 
-def test_list(dt: Dynatrace):
-    tags = dt.auto_tags.list()
+async def test_list(dt: Dynatrace):
+    tags = await dt.auto_tags.list()
     assert isinstance(tags, PaginatedList)
 
-    for tag in tags:
+    async for tag in tags:
         assert isinstance(tag, AutoTagShortRepresentation)
         assert tag.id == "403e033b-7324-4bfe-bef1-b3f367de42f2"
         assert tag.name == "frontend"
         break
 
 
-def test_get(dt: Dynatrace):
-    tags = dt.auto_tags.list()
-    for tag in tags:
-        full_tag = tag.get_full_configuration()
+async def test_get(dt: Dynatrace):
+    tags = await dt.auto_tags.list()
+    async for tag in tags:
+        full_tag = await tag.get_full_configuration()
         assert isinstance(full_tag, AutoTag)
         assert isinstance(full_tag.metadata, ConfigurationMetadata)
         assert full_tag.metadata.cluster_version == "1.214.112.20210409-064503"

@@ -30,7 +30,7 @@ class AuditLogsService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         log_filter: str | None = None,
         time_from: datetime | str | None = None,
@@ -43,16 +43,18 @@ class AuditLogsService:
             "to": timestamp_to_string(time_to),
             "sort": sort,
         }
-        return PaginatedList(
+        return await PaginatedList(
             target_class=AuditLogEntry,
             http_client=self.__http_client,
             target_url="/api/v2/auditlogs",
             target_params=params,
             list_item="auditLogs",
-        )
+        ).initialize()
 
-    def get(self, log_id: str) -> "AuditLogEntry":
-        response = self.__http_client.make_request(f"/api/v2/auditlogs/{log_id}").json()
+    async def get(self, log_id: str) -> "AuditLogEntry":
+        response = (
+            await self.__http_client.make_request(f"/api/v2/auditlogs/{log_id}")
+        ).json()
         return AuditLogEntry(raw_element=response)
 
 

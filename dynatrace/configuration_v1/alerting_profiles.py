@@ -17,7 +17,7 @@ limitations under the License.
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.schemas import (
     ConfigurationMetadata,
@@ -160,7 +160,7 @@ class AlertingProfile(DynatraceObject):
             for event_filter in raw_element.get("eventTypeFilters", [])
         ]
 
-    def post(self) -> EntityShortRepresentation:
+    async def post(self) -> EntityShortRepresentation:
         """Creates the Alerting Profile configuration in Dynatrace (POST).
 
         :param alerting_profile: the Alerting Profile configuration details
@@ -173,14 +173,14 @@ class AlertingProfile(DynatraceObject):
             raise ValueError(
                 "Object does not have an HTTP Client. Use alerting_profiles.post() instead."
             )
-        response = self._http_client.make_request(
+        response = await self._http_client.make_request(
             path=AlertingProfileService.ENDPOINT, params=self.to_json(), method="POST"
         )
         self.id = response.json().get("id")
 
         return EntityShortRepresentation(raw_element=response.json())
 
-    def put(self) -> Response:
+    async def put(self) -> Response:
         """Updates the Alerting Profile configuration in Dynatrace (PUT).
         If the ID does not exist in Dynatrace, a new Alerting Profile will be created with the given ID.
 
@@ -194,7 +194,7 @@ class AlertingProfile(DynatraceObject):
             raise ValueError(
                 "Object does not have an HTTP Client. Use alerting_profiles.put() instead."
             )
-        response = self._http_client.make_request(
+        response = await self._http_client.make_request(
             path=f"{AlertingProfileService.ENDPOINT}/{self.id}",
             params=self.to_json(),
             method="PUT",
@@ -219,14 +219,16 @@ class AlertingProfile(DynatraceObject):
 
 
 class AlertingProfileStub(EntityShortRepresentation):
-    def get_full_configuration(self):
+    async def get_full_configuration(self):
         """
         Gathers the full details of the alerting profile
         """
         if not self._http_client:
             raise ValueError("Object does not have an HTTP Client implemented.")
-        response = self._http_client.make_request(
-            f"{AlertingProfileService.ENDPOINT}/{self.id}"
+        response = (
+            await self._http_client.make_request(
+                f"{AlertingProfileService.ENDPOINT}/{self.id}"
+            )
         ).json()
         return AlertingProfile(self._http_client, None, response)
 
@@ -237,38 +239,42 @@ class AlertingProfileService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList[AlertingProfileStub]:
+    async def list(self) -> PaginatedList[AlertingProfileStub]:
         """
         Lists all alerting profiles in the environmemt. No configurable parameters.
         """
-        return PaginatedList(
+        return await PaginatedList(
             AlertingProfileStub,
             self.__http_client,
             f"{self.ENDPOINT}",
             list_item="values",
-        )
+        ).initialize()
 
-    def get(self, profile_id: str) -> AlertingProfile:
+    async def get(self, profile_id: str) -> AlertingProfile:
         """Gets the full details of the Alerting Profile referenced by ID.
 
         :param profile_id: ID of the alerting profile
 
         :returns AlertingProfile: alerting profile details
         """
-        response = self.__http_client.make_request(f"{self.ENDPOINT}/{profile_id}")
+        response = await self.__http_client.make_request(
+            f"{self.ENDPOINT}/{profile_id}"
+        )
         return AlertingProfile(
             http_client=self.__http_client, raw_element=response.json()
         )
 
-    def delete(self, profile_id: str) -> Response:
+    async def delete(self, profile_id: str) -> Response:
         """
         Delete the alerting profile with the specified id.
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"{self.ENDPOINT}/{profile_id}", method="DELETE"
         )
 
-    def post(self, alerting_profile: AlertingProfile) -> EntityShortRepresentation:
+    async def post(
+        self, alerting_profile: AlertingProfile
+    ) -> EntityShortRepresentation:
         """Creates the Alerting Profile configuration in Dynatrace (POST).
 
         :param alerting_profile: the Alerting Profile configuration details
@@ -277,9 +283,9 @@ class AlertingProfileService:
         """
         if not alerting_profile._http_client:
             alerting_profile._http_client = self.__http_client
-        return alerting_profile.post()
+        return await alerting_profile.post()
 
-    def put(self, alerting_profile: AlertingProfile) -> Response:
+    async def put(self, alerting_profile: AlertingProfile) -> Response:
         """Updates the Alerting Profile configuration in Dynatrace (PUT).
         If the ID does not exist in Dynatrace, a new Alerting Profile will be created with the given ID.
 
@@ -289,7 +295,7 @@ class AlertingProfileService:
         """
         if not alerting_profile._http_client:
             alerting_profile._http_client = self.__http_client
-        return alerting_profile.put()
+        return await alerting_profile.put()
 
 
 class TagFilterIncludeMode(Enum):

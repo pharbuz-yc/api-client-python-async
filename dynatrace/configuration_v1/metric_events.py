@@ -17,7 +17,7 @@ limitations under the License.
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
@@ -287,20 +287,22 @@ class MetricEvent(DynatraceObject):
 
 
 class MetricEventShortRepresentation(EntityShortRepresentation):
-    def delete(self) -> Response:
+    async def delete(self) -> Response:
         """
         Deletes this metric event
         """
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             f"/api/config/v1/anomalyDetection/metricEvents/{self.id}", method="DELETE"
         )
 
-    def get_full_metric_event(self) -> MetricEvent:
+    async def get_full_metric_event(self) -> MetricEvent:
         """
         Gets the full metric event for this stub
         """
-        response = self._http_client.make_request(
-            f"/api/config/v1/anomalyDetection/metricEvents/{self.id}"
+        response = (
+            await self._http_client.make_request(
+                f"/api/config/v1/anomalyDetection/metricEvents/{self.id}"
+            )
         ).json()
         return MetricEvent(self._http_client, None, response)
 
@@ -309,13 +311,13 @@ class MetricEventService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList[MetricEventShortRepresentation]:
+    async def list(self) -> PaginatedList[MetricEventShortRepresentation]:
         """
         Lists all metric events in the environment. No configurable parameters.
         """
-        return PaginatedList(
+        return await PaginatedList(
             MetricEventShortRepresentation,
             self.__http_client,
             "/api/config/v1/anomalyDetection/metricEvents",
             list_item="values",
-        )
+        ).initialize()

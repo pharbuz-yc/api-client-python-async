@@ -18,7 +18,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -33,7 +33,7 @@ class LogService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def export(
+    async def export(
         self,
         query: str | None = None,
         time_from: datetime | str | None = None,
@@ -57,22 +57,22 @@ class LogService:
             "to": timestamp_to_string(time_to),
             "sort": sort,
         }
-        return PaginatedList(
+        return await PaginatedList(
             LogRecord,
             self.__http_client,
             "/api/v2/logs/export",
             params,
             list_item="results",
-        )
+        ).initialize()
 
-    def ingest(self, payload: dict[str, Any] | list[dict[str, Any]]) -> Response:
+    async def ingest(self, payload: dict[str, Any] | list[dict[str, Any]]) -> Response:
         """
         Ingests logs into the Dynatrace log store.
         :param payload: A list of log entries or a single log entry, which are JSON objects (dictionaries)
         :return: The HTTP Response
         """
         headers = {"Content-Type": "application/json; charset=utf-8"}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"{self.ENDPOINT}/ingest", params=payload, method="POST", headers=headers
         )
 

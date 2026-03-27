@@ -28,7 +28,7 @@ class ThirdPartySyntheticTestsService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def report_simple_thirdparty_synthetic_test(
+    async def report_simple_thirdparty_synthetic_test(
         self,
         engine_name: str,
         timestamp: datetime,
@@ -87,7 +87,7 @@ class ThirdPartySyntheticTestsService:
             [test_result],
             synthetic_engine_icon_url=icon_url,
         )
-        return tests.post()
+        return await tests.post()
 
     def create_synthetic_test_step_result(
         self, step_id: int, timestamp: datetime, response_time: int
@@ -101,7 +101,7 @@ class ThirdPartySyntheticTestsService:
     ) -> "SyntheticTestStep":
         return SyntheticTestStep(self.__http_client, step_id, step_title)
 
-    def report_simple_thirdparty_synthetic_test_event(
+    async def report_simple_thirdparty_synthetic_test_event(
         self,
         test_id: str,
         name: str,
@@ -139,7 +139,7 @@ class ThirdPartySyntheticTestsService:
             events = ThirdPartySyntheticEvents(
                 self.__http_client, engine_name, opened_events, resolved_events
             )
-            return events.post()
+            return await events.post()
 
 
 class ThirdPartySyntheticTests(DynatraceObject):
@@ -168,8 +168,8 @@ class ThirdPartySyntheticTests(DynatraceObject):
         }
         super().__init__(http_client, None, raw_element)
 
-    def post(self):
-        return self._http_client.make_request(
+    async def post(self):
+        return await self._http_client.make_request(
             "/api/v1/synthetic/ext/tests", params=self._raw_element, method="POST"
         )
 
@@ -330,8 +330,8 @@ class ThirdPartySyntheticEvents(DynatraceObject):
         }
         super().__init__(http_client, None, raw_element)
 
-    def post(self):
-        return self._http_client.make_request(
+    async def post(self):
+        return await self._http_client.make_request(
             "/api/v1/synthetic/ext/events", params=self._raw_element, method="POST"
         )
 

@@ -80,31 +80,35 @@ class AnomalyDetectionPGService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def get_configuration(self, id: str):
+    async def get_configuration(self, id: str):
         """
         Get the anomaly detection configuration for the specified process group.
         """
         return AnomalyDetectionPG(
             self.__http_client,
-            raw_element=self.__http_client.make_request(
-                f"/api/config/v1/anomalyDetection/processGroups/{id}"
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/config/v1/anomalyDetection/processGroups/{id}"
+                )
             ).json(),
         )
 
-    def put_configuration(self, id: str, anomaly_detection_config: AnomalyDetectionPG):
+    async def put_configuration(
+        self, id: str, anomaly_detection_config: AnomalyDetectionPG
+    ):
         """
         Update the anomaly detection configuration for the specified process group.
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/config/v1/anomalyDetection/processGroups/{id}",
             method="PUT",
             params=anomaly_detection_config.json(),
         )
 
-    def delete_configuration(self, id: str):
+    async def delete_configuration(self, id: str):
         """
         Deletes the anomaly detection configuration for the process group. This is the same as turning availaility monitoring off.
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/config/v1/anomalyDetection/processGroups/{id}", method="DELETE"
         )

@@ -17,7 +17,7 @@ limitations under the License.
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.schemas import (
     AutoUpdateSetting,
@@ -36,57 +36,63 @@ class OneAgentOnAHostService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def get(self, host_id: str) -> "HostConfig":
+    async def get(self, host_id: str) -> "HostConfig":
         """Gets the full OneAgent configuration on the specified host
 
         :param host_id: The Dynatrace entity ID of the required host.
 
         :returns HostConfig: The full OneAgent configuration details on this host
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{host_id}"
+        response = (
+            await self.__http_client.make_request(path=f"{self.ENDPOINT}/{host_id}")
         ).json()
         return HostConfig(raw_element=response, http_client=self.__http_client)
 
-    def get_autoupdate(self, host_id: str) -> "HostAutoUpdateConfig":
+    async def get_autoupdate(self, host_id: str) -> "HostAutoUpdateConfig":
         """Gets the configuration of OneAgent auto-update on the specified host
 
         :param host_id: The Dynatrace entity ID of the required host.
 
         :returns HostAutoUpdateConfig: The auto-update configuration details on this host
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{host_id}/autoupdate"
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{host_id}/autoupdate"
+            )
         ).json()
         return HostAutoUpdateConfig(
             raw_element=response, http_client=self.__http_client
         )
 
-    def get_monitoring(self, host_id: str) -> "MonitoringConfig":
+    async def get_monitoring(self, host_id: str) -> "MonitoringConfig":
         """Gets the monitoring configuration of OneAgent on the specified host
 
         :param host_id: The Dynatrace entity ID of the required host.
 
         :returns MonitoringConfig: The monitoring configuration details on this host
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{host_id}/monitoring"
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{host_id}/monitoring"
+            )
         ).json()
         return MonitoringConfig(raw_element=response, http_client=self.__http_client)
 
-    def get_technologies(self, host_id: str) -> "TechMonitoringList":
+    async def get_technologies(self, host_id: str) -> "TechMonitoringList":
         """Gets the configuration of monitored technologies on the specified host
 
         :param host_id: The Dynatrace entity ID of the required host.
 
         :returns TechMonitoringList: The monitored technologies configuration details on this host
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{host_id}/technologies"
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{host_id}/technologies"
+            )
         ).json()
         return TechMonitoringList(raw_element=response)
 
-    def put_autoupdate(
+    async def put_autoupdate(
         self, host_id: str, config: "HostAutoUpdateConfig"
     ) -> "Response":
         """Updates the configuration of OneAgent auto-update on the specified host.
@@ -99,13 +105,15 @@ class OneAgentOnAHostService:
 
         :returns Response: HTTP Response to the request
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{host_id}/autoupdate",
             method="PUT",
             params=config.to_json(),
         )
 
-    def put_monitoring(self, host_id: str, config: "MonitoringConfig") -> "Response":
+    async def put_monitoring(
+        self, host_id: str, config: "MonitoringConfig"
+    ) -> "Response":
         """Updates the monitoring configuration of OneAgent on the specified host.
 
         The monitoring mode of OneAgent is updated several minutes after the change of configuration.
@@ -115,13 +123,15 @@ class OneAgentOnAHostService:
 
         :returns Response: HTTP Response to the request
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{host_id}/monitoring",
             method="PUT",
             params=config.to_json(),
         )
 
-    def is_valid_autoupdate(self, host_id: str, config: "HostAutoUpdateConfig") -> bool:
+    async def is_valid_autoupdate(
+        self, host_id: str, config: "HostAutoUpdateConfig"
+    ) -> bool:
         """Validates the payload for the put_autoupdate function
 
         :param host_id: The Dynatrace entity ID of the required host.
@@ -130,10 +140,12 @@ class OneAgentOnAHostService:
         :returns bool: True if valid, False otherwise
         """
         try:
-            self.__http_client.make_request(
-                path=f"{self.ENDPOINT}/{host_id}/autoupdate/validator",
-                method="POST",
-                params=config.to_json(),
+            (
+                await self.__http_client.make_request(
+                    path=f"{self.ENDPOINT}/{host_id}/autoupdate/validator",
+                    method="POST",
+                    params=config.to_json(),
+                )
             )
         except Exception as e:
             print(e.args)
@@ -141,7 +153,9 @@ class OneAgentOnAHostService:
         else:
             return True
 
-    def is_valid_monitoring(self, host_id: str, config: "MonitoringConfig") -> bool:
+    async def is_valid_monitoring(
+        self, host_id: str, config: "MonitoringConfig"
+    ) -> bool:
         """Validates the payload for the put_monitoring function
 
         :param host_id: The Dynatrace entity ID of the required host.
@@ -150,10 +164,12 @@ class OneAgentOnAHostService:
         :returns bool: True if valid, False otherwise
         """
         try:
-            self.__http_client.make_request(
-                path=f"{self.ENDPOINT}/{host_id}/monitoring/validator",
-                method="POST",
-                params=config.to_json(),
+            (
+                await self.__http_client.make_request(
+                    path=f"{self.ENDPOINT}/{host_id}/monitoring/validator",
+                    method="POST",
+                    params=config.to_json(),
+                )
             )
         except Exception as e:
             print(e.args)
@@ -195,8 +211,8 @@ class MonitoringConfig(DynatraceObject):
             "monitoringMode": str(self.monitoring_mode),
         }
 
-    def put(self) -> "Response":
-        return self._http_client.make_request(
+    async def put(self) -> "Response":
+        return await self._http_client.make_request(
             path=f"{OneAgentOnAHostService.ENDPOINT}/{self.id}/monitoring",
             method="PUT",
             params=self.to_json(),
@@ -230,8 +246,8 @@ class HostAutoUpdateConfig(DynatraceObject):
             "effectiveVersion": self.effective_version,
         }
 
-    def put(self) -> "Response":
-        return self._http_client.make_request(
+    async def put(self) -> "Response":
+        return await self._http_client.make_request(
             path=f"{OneAgentOnAHostService.ENDPOINT}/{self.id}/autoupdate",
             method="PUT",
             params=self.to_json(),

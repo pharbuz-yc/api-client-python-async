@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -14,17 +16,17 @@ class SettingService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list_schemas(self) -> PaginatedList["SchemaStub"]:
+    async def list_schemas(self) -> PaginatedList[SchemaStub]:
         """Lists all settings schemas available in your environment"""
 
-        return PaginatedList(
+        return await PaginatedList(
             SchemaStub,
             self.__http_client,
             target_url=self.SCHEMAS_ENDPOINT,
             list_item="items",
-        )
+        ).initialize()
 
-    def list_objects(
+    async def list_objects(
         self,
         schema_id: str | None = None,
         scope: str | None = None,
@@ -33,7 +35,7 @@ class SettingService:
         filter: str | None = None,
         sort: str | None = None,
         page_size: str | None = None,
-    ) -> PaginatedList["SettingsObject"]:
+    ) -> PaginatedList[SettingsObject]:
         """Lists settings
 
         :return: a list of settings with details
@@ -47,18 +49,18 @@ class SettingService:
             "sort": sort,
             "pageSize": page_size,
         }
-        return PaginatedList(
+        return await PaginatedList(
             SettingsObject,
             self.__http_client,
             target_url=self.OBJECTS_ENDPOINT,
             list_item="items",
             target_params=params,
-        )
+        ).initialize()
 
-    def create_object(
+    async def create_object(
         self,
         validate_only: bool | None = False,
-        body: list["SettingsObjectCreate"] | "SettingsObjectCreate" | None = None,
+        body: list[SettingsObjectCreate] | SettingsObjectCreate | None = None,
     ):
         """
         Creates a new settings object or validates the provided settigns object
@@ -73,35 +75,42 @@ class SettingService:
 
         body = [] if body is None else [o.json() for o in body]
 
-        response = self.__http_client.make_request(
-            self.OBJECTS_ENDPOINT, params=body, method="POST", query_params=query_params
+        response = (
+            await self.__http_client.make_request(
+                self.OBJECTS_ENDPOINT,
+                params=body,
+                method="POST",
+                query_params=query_params,
+            )
         ).json()
         return response
 
-    def get_object(self, object_id: str):
+    async def get_object(self, object_id: str):
         """Gets parameters of specified settings object
 
         :param object_id: the ID of the object
         :return: a Settings object
         """
-        response = self.__http_client.make_request(
-            f"{self.OBJECTS_ENDPOINT}/{object_id}"
+        response = (
+            await self.__http_client.make_request(
+                f"{self.OBJECTS_ENDPOINT}/{object_id}"
+            )
         ).json()
         return SettingsObject(raw_element=response)
 
-    def update_object(
-        self, object_id: str, body: Optional["SettingsObjectUpdate"] = None
+    async def update_object(
+        self, object_id: str, body: SettingsObjectUpdate | None = None
     ):
         """Updates an existing settings object
 
         :param object_id: the ID of the object
         :param value: the JSON body of the request. Contains updated parameters of the settings object.
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"{self.OBJECTS_ENDPOINT}/{object_id}", params=body.json(), method="PUT"
         )
 
-    def delete_object(self, object_id: str, update_token: str | None = None):
+    async def delete_object(self, object_id: str, update_token: str | None = None):
         """Deletes the specified object
 
         :param object_id: the ID of the object
@@ -109,7 +118,7 @@ class SettingService:
         :return: HTTP response
         """
         query_params = {"updateToken": update_token}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"{self.OBJECTS_ENDPOINT}/{object_id}",
             method="DELETE",
             query_params=query_params,

@@ -36,7 +36,7 @@ class ActiveGateAutoUpdateJobsService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         time_from: datetime | str | None = None,
         time_to: datetime | str | None = None,
@@ -55,15 +55,15 @@ class ActiveGateAutoUpdateJobsService:
             "targetVersionCompareType": target_version_compare_type,
             "targetVersion": target_version,
         }
-        return PaginatedList(
+        return await PaginatedList(
             UpdateJobList,
             self.__http_client,
             "/api/v2/activeGates/updateJobs",
             list_item="allUpdateJobs",
             target_params=params,
-        )
+        ).initialize()
 
-    def get(
+    async def get(
         self,
         activegate_id: str,
         time_from: datetime | str | None = None,
@@ -84,38 +84,44 @@ class ActiveGateAutoUpdateJobsService:
             "targetVersion": target_version,
         }
         return UpdateJobList(
-            raw_element=self.__http_client.make_request(
-                f"/api/v2/activeGates/{activegate_id}/updateJobs", params=params
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/v2/activeGates/{activegate_id}/updateJobs", params=params
+                )
             ).json()
         )
 
-    def post(self, activegate_id: str, target_version: str):
+    async def post(self, activegate_id: str, target_version: str):
         params = {"targetVersion": target_version}
         return UpdateJob(
-            raw_element=self.__http_client.make_request(
-                f"/api/v2/activeGates/{activegate_id}/updateJobs",
-                params=params,
-                method="POST",
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/v2/activeGates/{activegate_id}/updateJobs",
+                    params=params,
+                    method="POST",
+                )
             ).json()
         )
 
-    def validate(self, activegate_id: str, target_version: str):
+    async def validate(self, activegate_id: str, target_version: str):
         params = {"targetVersion": target_version}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/v2/activeGates/{activegate_id}/updateJobs/validator",
             params=params,
             method="POST",
         )
 
-    def get_job(self, activegate_id: str, job_id: str):
+    async def get_job(self, activegate_id: str, job_id: str):
         return UpdateJob(
-            raw_element=self.__http_client.make_request(
-                f"/api/v2/activeGates/{activegate_id}/updateJobs/{job_id}"
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/v2/activeGates/{activegate_id}/updateJobs/{job_id}"
+                )
             ).json()
         )
 
-    def delete_job(self, activegate_id: str, job_id: str):
-        return self.__http_client.make_request(
+    async def delete_job(self, activegate_id: str, job_id: str):
+        return await self.__http_client.make_request(
             f"/api/v2/activeGates/{activegate_id}/updateJobs/{job_id}", method="DELETE"
         )
 

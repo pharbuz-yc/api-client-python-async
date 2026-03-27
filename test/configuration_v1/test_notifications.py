@@ -5,17 +5,18 @@ from dynatrace.configuration_v1.notifications import (
     ServiceNowNotificationConfig,
 )
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 ID = "0d06c889-4cea-4b45-aefa-a277790e784d"
 NAME = "Service Now Example"
 TYPE = NotificationType.SERVICE_NOW
 
 
-def test_list(dt: Dynatrace):
-    notifications = dt.notifications.list()
+async def test_list(dt: Dynatrace):
+    notifications = await dt.notifications.list()
     assert isinstance(notifications, PaginatedList)
 
-    list_notifications = list(notifications)
+    list_notifications = await collect(notifications)
     assert len(list_notifications) == 4
 
     first = list_notifications[0]
@@ -26,12 +27,12 @@ def test_list(dt: Dynatrace):
     assert first.type == TYPE
 
 
-def test_get_full_configuration(dt: Dynatrace):
-    notifications = dt.notifications.list()
-    list_notifications = list(notifications)
+async def test_get_full_configuration(dt: Dynatrace):
+    notifications = await dt.notifications.list()
+    list_notifications = await collect(notifications)
     first = list_notifications[0]
 
-    full = first.get_full_configuration()
+    full = await first.get_full_configuration()
 
     # type checks
     assert isinstance(full, ServiceNowNotificationConfig)

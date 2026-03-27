@@ -8,10 +8,10 @@ from dynatrace.environment_v1.synthetic_monitors import (
 from dynatrace.pagination import PaginatedList
 
 
-def test_list_string(dt: Dynatrace):
-    monitors = dt.synthetic_monitors.list(monitor_type="BROWSER")
+async def test_list_string(dt: Dynatrace):
+    monitors = await dt.synthetic_monitors.list(monitor_type="BROWSER")
     assert isinstance(monitors, PaginatedList)
-    for monitor in monitors:
+    async for monitor in monitors:
         assert isinstance(monitor, MonitorCollectionElement)
         assert monitor.name == "angular easytravel bounce"
         assert monitor.entity_id == "SYNTHETIC_TEST-7639A3AED66940FA"
@@ -20,10 +20,10 @@ def test_list_string(dt: Dynatrace):
         break
 
 
-def test_list_enum(dt: Dynatrace):
-    monitors = dt.synthetic_monitors.list(monitor_type=MonitorType.BROWSER)
+async def test_list_enum(dt: Dynatrace):
+    monitors = await dt.synthetic_monitors.list(monitor_type=MonitorType.BROWSER)
     assert isinstance(monitors, PaginatedList)
-    for monitor in monitors:
+    async for monitor in monitors:
         assert isinstance(monitor, MonitorCollectionElement)
         assert monitor.name == "angular easytravel bounce"
         assert monitor.entity_id == "SYNTHETIC_TEST-7639A3AED66940FA"
@@ -32,8 +32,8 @@ def test_list_enum(dt: Dynatrace):
         break
 
 
-def test_get_full_synthetic_config(dt: Dynatrace):
-    config = dt.synthetic_monitors.get_full_monitor_configuration(
+async def test_get_full_synthetic_config(dt: Dynatrace):
+    config = await dt.synthetic_monitors.get_full_monitor_configuration(
         monitor_id="SYNTHETIC_TEST-7639A3AED66940FA"
     )
     assert config.name == "angular easytravel bounce"

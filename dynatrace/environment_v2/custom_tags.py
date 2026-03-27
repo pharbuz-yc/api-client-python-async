@@ -31,7 +31,7 @@ class CustomTagService:
     def __init__(self, http_client: HttpClient) -> None:
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         entity_selector: str,
         time_from: datetime | str | None = None,
@@ -51,15 +51,15 @@ class CustomTagService:
             "to": timestamp_to_string(time_to),
         }
 
-        return PaginatedList(
+        return await PaginatedList(
             METag,
             self.__http_client,
             target_url=self.ENDPOINT,
             target_params=params,
             list_item="tags",
-        )
+        ).initialize()
 
-    def post(
+    async def post(
         self,
         entity_selector: str,
         tags: builtins.list["AddEntityTags"],
@@ -83,12 +83,14 @@ class CustomTagService:
         body = {
             "tags": [t.to_json() for t in tags],
         }
-        response = self.__http_client.make_request(
-            self.ENDPOINT, params=body, method="POST", query_params=query_params
+        response = (
+            await self.__http_client.make_request(
+                self.ENDPOINT, params=body, method="POST", query_params=query_params
+            )
         ).json()
         return AddedEntityTags(raw_element=response)
 
-    def delete(
+    async def delete(
         self,
         key: str,
         entity_selector: str,
@@ -108,7 +110,7 @@ class CustomTagService:
             "from": timestamp_to_string(time_from),
             "to": timestamp_to_string(time_to),
         }
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             self.ENDPOINT, params=params, method="DELETE"
         )
         return DeletedEntityTags(raw_element=response.json())

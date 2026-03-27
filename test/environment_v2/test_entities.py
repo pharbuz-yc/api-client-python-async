@@ -15,25 +15,26 @@ from dynatrace.environment_v2.monitored_entities import (
 from dynatrace.environment_v2.schemas import ManagementZone
 from dynatrace.pagination import PaginatedList
 from dynatrace.utils import int64_to_datetime
+from test.async_utils import collect
 
 
-def test_list(dt: Dynatrace):
-    entities = dt.entities.list(
+async def test_list(dt: Dynatrace):
+    entities = await dt.entities.list(
         'type("HOST")',
         fields="+fromRelationships,+toRelationships,+icon,+properties,+tags,+managementZones,+firstSeenTms,+lastSeenTms",
     )
-    entities_list = list(entities)
+    entities_list = await collect(entities)
 
     # type checks
     assert isinstance(entities, PaginatedList)
-    assert all(isinstance(e, Entity) for e in entities)
+    assert all(isinstance(e, Entity) for e in entities_list)
 
     # value checks
     assert len(entities_list) == 1
 
 
-def test_get(dt: Dynatrace):
-    entity = dt.entities.get(
+async def test_get(dt: Dynatrace):
+    entity = await dt.entities.get(
         "HOST-82F576674F19AC16",
         time_from=datetime.utcfromtimestamp(1618585701),
         time_to=datetime.utcfromtimestamp(1621177701),
@@ -73,20 +74,20 @@ def test_get(dt: Dynatrace):
     assert entity.to_relationships["runsOn"][0].id == "PROCESS_GROUP-3AD9FB79C914520C"
 
 
-def test_list_types(dt: Dynatrace):
-    entity_types = dt.entities.list_types(page_size=3)
-    entity_types_list = list(entity_types)
+async def test_list_types(dt: Dynatrace):
+    entity_types = await dt.entities.list_types(page_size=3)
+    entity_types_list = await collect(entity_types)
 
     # type checks
     assert isinstance(entity_types, PaginatedList)
-    assert all(isinstance(et, EntityType) for et in entity_types)
+    assert all(isinstance(et, EntityType) for et in entity_types_list)
 
     # value checks
     assert len(entity_types_list) == 2
 
 
-def test_get_types(dt: Dynatrace):
-    entity_type = dt.entities.get_type(entity_type="DISK")
+async def test_get_types(dt: Dynatrace):
+    entity_type = await dt.entities.get_type(entity_type="DISK")
 
     # type checks
     assert isinstance(entity_type, EntityType)
@@ -130,7 +131,7 @@ def test_get_types(dt: Dynatrace):
     assert entity_type.to_relationships[0].from_types[0] == "EBS_VOLUME"
 
 
-def test_create_custom_device(dt: Dynatrace):
+async def test_create_custom_device(dt: Dynatrace):
     device = dt.entities.create_custom_device(
         custom_device_id="device-one",
         display_name="Test Device",

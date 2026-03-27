@@ -12,22 +12,22 @@ class CredentialVaultService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList["CredentialsResponseElement"]:
+    async def list(self) -> PaginatedList["CredentialsResponseElement"]:
         """
         Lists all sets of credentials stored in your environment
 
         Required Api-Token scope:
             credentialVault.read (Read credential vault entries)
         """
-        return PaginatedList(
+        return await PaginatedList(
             CredentialsResponseElement,
             self.__http_client,
             self._ENDPOINT,
             list_item="credentials",
-        )
+        ).initialize()
 
-    def post(self, credential: "Credentials"):
-        response = self.__http_client.make_request(
+    async def post(self, credential: "Credentials"):
+        response = await self.__http_client.make_request(
             path=self._ENDPOINT, params=credential.to_json(), method="POST"
         )
 

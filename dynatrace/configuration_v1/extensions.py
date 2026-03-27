@@ -19,7 +19,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
@@ -35,7 +35,7 @@ class ExtensionService:
         self.__http_client = http_client
         pass
 
-    def list(self, page_size: int = 200) -> PaginatedList["ExtensionDto"]:
+    async def list(self, page_size: int = 200) -> PaginatedList["ExtensionDto"]:
         """
         List all uploaded extensions
 
@@ -43,71 +43,77 @@ class ExtensionService:
             Default value : 200
         """
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             ExtensionDto,
             self.__http_client,
             "/api/config/v1/extensions",
             params,
             list_item="extensions",
-        )
+        ).initialize()
 
-    def get(self, extension_id: str):
-        response = self.__http_client.make_request(
-            f"/api/config/v1/extensions/{extension_id}"
+    async def get(self, extension_id: str):
+        response = (
+            await self.__http_client.make_request(
+                f"/api/config/v1/extensions/{extension_id}"
+            )
         ).json()
         return Extension(raw_element=response)
 
-    def post(self, zip_file_path: str) -> EntityShortRepresentation:
+    async def post(self, zip_file_path: str) -> EntityShortRepresentation:
 
         file = Path(zip_file_path)
         with open(file, "rb") as f:
-            response = self.__http_client.make_request(
+            response = await self.__http_client.make_request(
                 "/api/config/v1/extensions", method="POST", files={"file": f}
             )
 
         return EntityShortRepresentation(raw_element=response.json())
 
-    def validate(self, zip_file_path: str) -> Response:
+    async def validate(self, zip_file_path: str) -> Response:
 
         file = Path(zip_file_path)
         with open(file, "rb") as f:
-            return self.__http_client.make_request(
+            return await self.__http_client.make_request(
                 "/api/config/v1/extensions/validator", method="POST", files={"file": f}
             )
 
-    def list_instances(
+    async def list_instances(
         self, extension_id: str, page_size: int = 200
     ) -> PaginatedList["ExtensionShortRepresentation"]:
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             ExtensionShortRepresentation,
             self.__http_client,
             f"/api/config/v1/extensions/{extension_id}/instances",
             list_item="configurationsList",
             target_params=params,
-        )
+        ).initialize()
 
-    def get_instance(self, extension_id: str, configuration_id: str):
-        response = self.__http_client.make_request(
-            f"/api/config/v1/extensions/{extension_id}/instances/{configuration_id}"
+    async def get_instance(self, extension_id: str, configuration_id: str):
+        response = (
+            await self.__http_client.make_request(
+                f"/api/config/v1/extensions/{extension_id}/instances/{configuration_id}"
+            )
         ).json()
         return ExtensionConfigurationDto(
             http_client=self.__http_client, raw_element=response
         )
 
-    def post_instance(self, extension_configuration: "ExtensionConfigurationDto"):
-        return extension_configuration.post()
+    async def post_instance(self, extension_configuration: "ExtensionConfigurationDto"):
+        return await extension_configuration.post()
 
-    def validate_instance(
+    async def validate_instance(
         self, extension_configuration: "ExtensionConfigurationDto"
     ) -> Response:
-        return extension_configuration.validate()
+        return await extension_configuration.validate()
 
-    def get_instance_configuration(
+    async def get_instance_configuration(
         self, extension_id: str, configuration_id: str
     ) -> "ExtensionConfigurationDto":
-        response = self.__http_client.make_request(
-            f"/api/config/v1/extensions/{extension_id}/instances/{configuration_id}"
+        response = (
+            await self.__http_client.make_request(
+                f"/api/config/v1/extensions/{extension_id}/instances/{configuration_id}"
+            )
         ).json()
         return ExtensionConfigurationDto(
             http_client=self.__http_client, raw_element=response
@@ -115,44 +121,48 @@ class ExtensionService:
 
     # TODO - Can't implement put_instance because of APM-300262, fixed in 1.219
 
-    def delete_instance_configuration(
+    async def delete_instance_configuration(
         self, extension_id: str, configuration_id: str
     ) -> Response:
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/config/v1/extensions/{extension_id}/instances/{configuration_id}",
             method="DELETE",
         )
 
-    def get_global_configuration(
+    async def get_global_configuration(
         self, extension_id: str
     ) -> "GlobalExtensionConfiguration":
-        response = self.__http_client.make_request(
-            f"/api/config/v1/extensions/{extension_id}/global"
+        response = (
+            await self.__http_client.make_request(
+                f"/api/config/v1/extensions/{extension_id}/global"
+            )
         ).json()
         return GlobalExtensionConfiguration(raw_element=response)
 
-    def get_binary(self, extension_id: str) -> bytes:
-        return self.__http_client.make_request(
-            f"/api/config/v1/extensions/{extension_id}/binary"
+    async def get_binary(self, extension_id: str) -> bytes:
+        return (
+            await self.__http_client.make_request(
+                f"/api/config/v1/extensions/{extension_id}/binary"
+            )
         ).content
 
-    def list_states(self, extension_id: str) -> PaginatedList["ExtensionState"]:
-        return PaginatedList(
+    async def list_states(self, extension_id: str) -> PaginatedList["ExtensionState"]:
+        return await PaginatedList(
             ExtensionState,
             self.__http_client,
             f"/api/config/v1/extensions/{extension_id}/states",
             list_item="states",
-        )
+        ).initialize()
 
-    def list_activegate_extension_modules(
+    async def list_activegate_extension_modules(
         self,
     ) -> PaginatedList[EntityShortRepresentation]:
-        return PaginatedList(
+        return await PaginatedList(
             EntityShortRepresentation,
             self.__http_client,
             "/api/config/v1/extensions/activeGateExtensionModules",
             list_item="values",
-        )
+        ).initialize()
 
     def create_instance(
         self,
@@ -191,16 +201,16 @@ class ExtensionProperty(DynatraceObject):
 
 
 class ExtensionConfigurationDto(DynatraceObject):
-    def post(self):
+    async def post(self):
 
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             f"/api/config/v1/extensions/{self.extension_id}/instances",
             params=self.to_json(),
             method="POST",
         )
 
-    def validate(self):
-        return self._http_client.make_request(
+    async def validate(self):
+        return await self._http_client.make_request(
             f"/api/config/v1/extensions/{self.extension_id}/instances/validator",
             params=self.to_json(),
             method="POST",
@@ -232,12 +242,14 @@ class ExtensionConfigurationDto(DynatraceObject):
 
 
 class ExtensionShortRepresentation(EntityShortRepresentation):
-    def get_full_configuration(self, extension_id: str):
+    async def get_full_configuration(self, extension_id: str):
         """
         Gets the full extension configuration for this ExtensionShortRepresentation
         """
-        response = self._http_client.make_request(
-            f"/api/config/v1/extensions/{extension_id}/instances/{self.id}"
+        response = (
+            await self._http_client.make_request(
+                f"/api/config/v1/extensions/{extension_id}/instances/{self.id}"
+            )
         ).json()
         return ExtensionConfigurationDto(self._http_client, raw_element=response)
 
@@ -273,12 +285,12 @@ class ExtensionDto(DynatraceObject):
         self.name: str = raw_element.get("name")
         self.type: ExtensionType = ExtensionType(raw_element.get("type"))
 
-    def get_full_extension(self) -> Extension:
+    async def get_full_extension(self) -> Extension:
         """
         Gets the full extension for this ExtensionDto
         """
-        response = self._http_client.make_request(
-            f"/api/config/v1/extensions/{self.id}"
+        response = (
+            await self._http_client.make_request(f"/api/config/v1/extensions/{self.id}")
         ).json()
         return Extension(self._http_client, None, response)
 
@@ -299,11 +311,11 @@ class ExtensionDto(DynatraceObject):
             target_params=params,
         )
 
-    def delete(self) -> Response:
+    async def delete(self) -> Response:
         """
         Deletes the ZIP file of this extension
         """
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             f"/api/config/v1/extensions/{self.id}", method="DELETE"
         )
 

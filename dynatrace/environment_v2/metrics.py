@@ -19,7 +19,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -31,7 +31,7 @@ class MetricService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def query(
+    async def query(
         self,
         metric_selector: str,
         resolution: str = None,
@@ -49,15 +49,15 @@ class MetricService:
             "entitySelector": entity_selector,
             "mzSelector": mz_selector,
         }
-        return PaginatedList(
+        return await PaginatedList(
             MetricSeriesCollection,
             self.__http_client,
             "/api/v2/metrics/query",
             params,
             list_item="result",
-        )
+        ).initialize()
 
-    def list(
+    async def list(
         self,
         metric_selector: str | None = None,
         text: str | None = None,
@@ -74,32 +74,34 @@ class MetricService:
             "writtenSince": timestamp_to_string(written_since),
             "metadataSelector": metadata_selector,
         }
-        return PaginatedList(
+        return await PaginatedList(
             MetricDescriptor,
             self.__http_client,
             "/api/v2/metrics",
             params,
             list_item="metrics",
-        )
+        ).initialize()
 
-    def get(self, metric_id: str) -> "MetricDescriptor":
-        response = self.__http_client.make_request(
-            f"/api/v2/metrics/{metric_id}"
+    async def get(self, metric_id: str) -> "MetricDescriptor":
+        response = (
+            await self.__http_client.make_request(f"/api/v2/metrics/{metric_id}")
         ).json()
         return MetricDescriptor(http_client=self.__http_client, raw_element=response)
 
-    def delete(self, metric_id) -> Response:
-        return self.__http_client.make_request(
+    async def delete(self, metric_id) -> Response:
+        return await self.__http_client.make_request(
             f"/api/v2/metrics/{metric_id}", method="DELETE"
         )
 
-    def ingest(self, lines: builtins.list[str]):
+    async def ingest(self, lines: builtins.list[str]):
         lines = "\n".join(lines).encode("utf-8")
-        return self.__http_client.make_request(
-            "/api/v2/metrics/ingest",
-            method="POST",
-            data=lines,
-            headers={"Content-Type": "text/plain; charset=utf-8"},
+        return (
+            await self.__http_client.make_request(
+                "/api/v2/metrics/ingest",
+                method="POST",
+                data=lines,
+                headers={"Content-Type": "text/plain; charset=utf-8"},
+            )
         ).json()
 
 

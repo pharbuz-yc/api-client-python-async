@@ -110,7 +110,7 @@ class SmartScapeHostsService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         relative_time: RelativeTime | str | None = RelativeTime.THREE_DAYS,
         start_timestamp: datetime | str | None = None,
@@ -141,6 +141,6 @@ class SmartScapeHostsService:
             "managementZone": management_zone if management_zone else None,
             "hostGroupName": host_group_name if host_group_name else None,
         }
-        return HeaderPaginatedList(
+        return await HeaderPaginatedList(
             Host, self.__http_client, "/api/v1/entity/infrastructure/hosts", params
-        )
+        ).initialize()

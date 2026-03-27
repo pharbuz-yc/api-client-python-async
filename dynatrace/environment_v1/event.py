@@ -16,7 +16,7 @@ limitations under the License.
 
 from datetime import datetime
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -37,7 +37,7 @@ class EventService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def create_event(
+    async def create_event(
         self,
         event_type: str,
         entity_id: str,
@@ -54,7 +54,7 @@ class EventService:
     ) -> Response:
 
         attach_rules = PushEventAttachRules(entity_ids=[entity_id], tag_rule=None)
-        return EventCreation(
+        return await EventCreation(
             self.__http_client,
             event_type=event_type,
             attach_rules=attach_rules,
@@ -106,8 +106,8 @@ class EventCreation(DynatraceObject):
 
         super().__init__(http_client, None, raw_element)
 
-    def post(self):
-        return self._http_client.make_request(
+    async def post(self):
+        return await self._http_client.make_request(
             "/api/v1/events", params=self._raw_element, method="POST"
         )
 

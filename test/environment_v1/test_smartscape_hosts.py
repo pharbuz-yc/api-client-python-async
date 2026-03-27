@@ -7,10 +7,10 @@ from dynatrace.environment_v1.smartscape_hosts import (
 from dynatrace.pagination import HeaderPaginatedList
 
 
-def test_list(dt: Dynatrace):
-    hosts = dt.smartscape_hosts.list(page_size=20)
+async def test_list(dt: Dynatrace):
+    hosts = await dt.smartscape_hosts.list(page_size=20)
     assert isinstance(hosts, HeaderPaginatedList)
-    for host in hosts:
+    async for host in hosts:
         assert isinstance(host, Host)
         assert host.entity_id == "HOST-7EC661999923A6B9"
         assert host.discovered_name == "TAG009444368559.clients.example.com"

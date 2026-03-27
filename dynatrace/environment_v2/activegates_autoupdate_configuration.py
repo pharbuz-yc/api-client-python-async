@@ -16,7 +16,7 @@ limitations under the License.
 
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.environment_v2.schemas import ConfigurationMetadata
@@ -27,48 +27,50 @@ class ActiveGateAutoUpdateConfigurationService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def get_global(self) -> "ActiveGateGlobalAutoUpdateConfig":
+    async def get_global(self) -> "ActiveGateGlobalAutoUpdateConfig":
         return ActiveGateGlobalAutoUpdateConfig(
-            raw_element=self.__http_client.make_request(
-                "/api/v2/activeGates/autoUpdate"
+            raw_element=(
+                await self.__http_client.make_request("/api/v2/activeGates/autoUpdate")
             ).json()
         )
 
-    def put_global(self, setting: str) -> Response:
+    async def put_global(self, setting: str) -> Response:
         """
         Puts the global auto-update configuration of environment ActiveGates
 
         :param setting: The state of auto-updates for all ActiveGates connected to the environment or Managed cluster. ENABLED or DISABLED
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             "/api/v2/activeGates/autoUpdate",
             method="PUT",
             params={"globalSetting": setting},
         )
 
-    def validate_global(self, setting: str) -> Response:
-        return self.__http_client.make_request(
+    async def validate_global(self, setting: str) -> Response:
+        return await self.__http_client.make_request(
             "/api/v2/activeGates/autoUpdate/validator",
             method="POST",
             params={"globalSetting": setting},
         )
 
-    def get(self, activegate_id: str) -> "ActiveGateAutoUpdateConfig":
+    async def get(self, activegate_id: str) -> "ActiveGateAutoUpdateConfig":
         return ActiveGateAutoUpdateConfig(
-            raw_element=self.__http_client.make_request(
-                f"/api/v2/activeGates/{activegate_id}/autoUpdate"
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/v2/activeGates/{activegate_id}/autoUpdate"
+                )
             ).json()
         )
 
-    def put(self, activegate_id: str, setting: str) -> Response:
-        return self.__http_client.make_request(
+    async def put(self, activegate_id: str, setting: str) -> Response:
+        return await self.__http_client.make_request(
             f"/api/v2/activeGates/{activegate_id}/autoUpdate",
             method="PUT",
             params={"setting": setting},
         )
 
-    def validate(self, activegate_id: str, setting: str) -> Response:
-        return self.__http_client.make_request(
+    async def validate(self, activegate_id: str, setting: str) -> Response:
+        return await self.__http_client.make_request(
             f"/api/v2/activeGates/{activegate_id}/autoUpdate/validator",
             method="POST",
             params={"setting": setting},

@@ -193,3 +193,12 @@ class Dynatrace:
 
         # New implementations should be done here, above is deprecated
         self.config_v1: ConfigurationV1 = ConfigurationV1(self.__http_client)
+
+    async def aclose(self) -> None:
+        await self.__http_client.aclose()
+
+    async def __aenter__(self) -> "Dynatrace":
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        await self.aclose()

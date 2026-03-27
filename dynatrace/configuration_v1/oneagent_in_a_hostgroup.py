@@ -16,7 +16,7 @@ limitations under the License.
 
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.schemas import (
     AutoUpdateSetting,
@@ -34,35 +34,39 @@ class OneAgentInAHostGroupService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def get(self, hostgroup_id: str) -> "OneAgentHostGroupConfig":
+    async def get(self, hostgroup_id: str) -> "OneAgentHostGroupConfig":
         """Gets the OneAgent configuration in the specified host group
 
         :param hostgroup_id: The Dynatrace entity ID of the required host group.
 
         :returns OneAgentHostGroupConfig: the full OneAgent configuration in this host group
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{hostgroup_id}"
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{hostgroup_id}"
+            )
         ).json()
         return OneAgentHostGroupConfig(
             raw_element=response, http_client=self.__http_client
         )
 
-    def get_autoupdate(self, hostgroup_id: str) -> "HostGroupAutoUpdateConfig":
+    async def get_autoupdate(self, hostgroup_id: str) -> "HostGroupAutoUpdateConfig":
         """Gets the configuration of OneAgent auto-update in the specified host group
 
         :param hostgroup_id: The Dynatrace entity ID of the required host group.
 
         :returns HostGroupAutoUpdateConfig: The The auto-update configuration details in this host group
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{hostgroup_id}/autoupdate"
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{hostgroup_id}/autoupdate"
+            )
         ).json()
         return HostGroupAutoUpdateConfig(
             raw_element=response, http_client=self.__http_client
         )
 
-    def put_autoupdate(
+    async def put_autoupdate(
         self, hostgroup_id: str, config: "HostGroupAutoUpdateConfig"
     ) -> "Response":
         """Updates the configuration of OneAgent auto-update in the specified host group
@@ -75,13 +79,13 @@ class OneAgentInAHostGroupService:
 
         :returns Response: HTTP Response to the request
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{hostgroup_id}/autoupdate",
             method="PUT",
             params=config.to_json(),
         )
 
-    def is_valid_autoupdate(
+    async def is_valid_autoupdate(
         self, hostgroup_id: str, config: "HostGroupAutoUpdateConfig"
     ) -> bool:
         """Validates the payload for the put_autoupdate function
@@ -92,10 +96,12 @@ class OneAgentInAHostGroupService:
         :returns bool: True if valid, False otherwise
         """
         try:
-            self.__http_client.make_request(
-                path=f"{self.ENDPOINT}/{hostgroup_id}/autoupdate/validator",
-                method="POST",
-                params=config.to_json(),
+            (
+                await self.__http_client.make_request(
+                    path=f"{self.ENDPOINT}/{hostgroup_id}/autoupdate/validator",
+                    method="POST",
+                    params=config.to_json(),
+                )
             )
         except Exception as e:
             print(e.args)
@@ -140,8 +146,8 @@ class HostGroupAutoUpdateConfig(DynatraceObject):
             "effectiveVersion": self.effective_version,
         }
 
-    def put(self) -> "Response":
-        return self._http_client.make_request(
+    async def put(self) -> "Response":
+        return await self._http_client.make_request(
             path=f"{OneAgentInAHostGroupService.ENDPOINT}/{self.id}/autoupdate",
             method="PUT",
             params=self.to_json(),

@@ -19,7 +19,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.environment_v2.custom_tags import METag
@@ -36,7 +36,7 @@ class EntityService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         entity_selector: str,
         time_from: datetime | str | None = None,
@@ -74,15 +74,15 @@ class EntityService:
             "fields": fields,
             "sort": sort,
         }
-        return PaginatedList(
+        return await PaginatedList(
             Entity,
             self.__http_client,
             self.ENDPOINT_ENTITIES,
             target_params=params,
             list_item="entities",
-        )
+        ).initialize()
 
-    def get(
+    async def get(
         self,
         entity_id: str,
         time_from: datetime | str | None = None,
@@ -103,19 +103,21 @@ class EntityService:
             "to": timestamp_to_string(time_to),
             "fields": fields,
         }
-        response = self.__http_client.make_request(
-            f"{self.ENDPOINT_ENTITIES}/{entity_id}", params=params
+        response = (
+            await self.__http_client.make_request(
+                f"{self.ENDPOINT_ENTITIES}/{entity_id}", params=params
+            )
         ).json()
         return Entity(raw_element=response)
 
-    def post_custom_device(self, device: "CustomDeviceCreation") -> "Response":
+    async def post_custom_device(self, device: "CustomDeviceCreation") -> "Response":
         """Creates or updates a custom device.
 
         If the Custom Device ID matches an existing device, the respective parameters will be updated.
 
         :returns Response: HTTP Response for the request
         """
-        return device.post()
+        return await device.post()
 
     def create_custom_device(
         self,
@@ -164,7 +166,9 @@ class EntityService:
             raw_element=raw_device, http_client=self.__http_client
         )
 
-    def list_types(self, page_size: int | None = 50) -> PaginatedList["EntityType"]:
+    async def list_types(
+        self, page_size: int | None = 50
+    ) -> PaginatedList["EntityType"]:
         """
         Gets a list of properties for all entity types
 
@@ -174,22 +178,22 @@ class EntityService:
         :return: A list of properties of all available entity types.
         """
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             EntityType,
             self.__http_client,
             self.ENDPOINT_TYPES,
             params,
             list_item="types",
-        )
+        ).initialize()
 
-    def get_type(self, entity_type: str) -> "EntityType":
+    async def get_type(self, entity_type: str) -> "EntityType":
         """Gets the properties of a specified entity type.
 
         :param entity_type: The entity type required
 
         :returns EntityType: The properties of the specified entity type.
         """
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_TYPES}/{entity_type}"
         )
         return EntityType(raw_element=response.json())
@@ -308,8 +312,8 @@ class CustomDeviceCreation(DynatraceObject):
             body["messageType"] = str(self.message_type)
         return body
 
-    def post(self) -> "Response":
-        return self._http_client.make_request(
+    async def post(self) -> "Response":
+        return await self._http_client.make_request(
             path=f"{EntityService.ENDPOINT_ENTITIES}/custom",
             method="POST",
             params=self.to_json(),

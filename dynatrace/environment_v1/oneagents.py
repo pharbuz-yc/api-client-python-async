@@ -75,7 +75,7 @@ class OneAgentOnAHostService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         include_details: bool | None = None,
         start_timestamp: datetime | int | None = None,
@@ -123,13 +123,13 @@ class OneAgentOnAHostService:
                 UpdateStatus(update_status).value if update_status else None
             ),
         }
-        return PaginatedList(
+        return await PaginatedList(
             HostAgentInfo,
             self.__http_client,
             "/api/v1/oneagents",
             params,
             list_item="hosts",
-        )
+        ).initialize()
 
 
 # todo - create class objects for ModuleInfo[] and PluginInfo[]

@@ -19,16 +19,17 @@ from dynatrace.configuration_v1.schemas import (
 from dynatrace.environment_v2.custom_tags import METag
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 ID = "b1f379d9-98b4-4efe-be38-0289609c9295"
 NAME = "deployment_change_autoremediation"
 
 
-def test_list(dt: Dynatrace):
-    alert_profiles = dt.alerting_profiles.list()
+async def test_list(dt: Dynatrace):
+    alert_profiles = await dt.alerting_profiles.list()
     assert isinstance(alert_profiles, PaginatedList)
 
-    list_alert_profiles = list(alert_profiles)
+    list_alert_profiles = await collect(alert_profiles)
     assert len(list_alert_profiles) == 6
 
     first = list_alert_profiles[0]
@@ -38,12 +39,12 @@ def test_list(dt: Dynatrace):
     assert first.name == NAME
 
 
-def test_get_full_configuration(dt: Dynatrace):
-    alert_profiles = dt.alerting_profiles.list()
-    list_alert_profiles = list(alert_profiles)
+async def test_get_full_configuration(dt: Dynatrace):
+    alert_profiles = await dt.alerting_profiles.list()
+    list_alert_profiles = await collect(alert_profiles)
     first = list_alert_profiles[0]
 
-    full = first.get_full_configuration()
+    full = await first.get_full_configuration()
     assert isinstance(full, AlertingProfile)
     assert full.id == ID
     assert full.display_name == NAME
@@ -51,8 +52,8 @@ def test_get_full_configuration(dt: Dynatrace):
     assert isinstance(full.rules[0], AlertingProfileSeverityRule)
 
 
-def test_get(dt: Dynatrace):
-    ap = dt.alerting_profiles.get(profile_id=ID)
+async def test_get(dt: Dynatrace):
+    ap = await dt.alerting_profiles.get(profile_id=ID)
 
     # type checks
     assert isinstance(ap, AlertingProfile)
@@ -118,8 +119,8 @@ def test_get(dt: Dynatrace):
     assert not predef_event_filter.negate
 
 
-def test_post(dt: Dynatrace):
-    response = dt.alerting_profiles.post(
+async def test_post(dt: Dynatrace):
+    response = await dt.alerting_profiles.post(
         AlertingProfile(
             raw_element={
                 "id": ID,

@@ -18,7 +18,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -32,7 +32,7 @@ class SloService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         page_size: int | None = 10,
         time_from: datetime | str | None = "now-2w",
@@ -72,15 +72,15 @@ class SloService:
             "evaluate": evaluate,
             "enabledSlos": enabled_slos,
         }
-        return PaginatedList(
+        return await PaginatedList(
             target_class=Slo,
             http_client=self.__http_client,
             target_params=params,
             target_url=f"{self.ENDPOINT}",
             list_item="slo",
-        )
+        ).initialize()
 
-    def get(
+    async def get(
         self,
         slo_id: str,
         time_from: datetime | str | None = "now-2w",
@@ -101,37 +101,39 @@ class SloService:
             "to": timestamp_to_string(time_to),
             "timeFrame": time_frame,
         }
-        response = self.__http_client.make_request(
-            f"{self.ENDPOINT}/{slo_id}", params=params
+        response = (
+            await self.__http_client.make_request(
+                f"{self.ENDPOINT}/{slo_id}", params=params
+            )
         ).json()
         return Slo(raw_element=response)
 
-    def post(self, slo: "Slo") -> "Response":
+    async def post(self, slo: "Slo") -> "Response":
         """Creates a new SLO in Dynatrace.
 
         :param slo: the Slo that should be created.
 
         :returns Response: HTTP response for the request
         """
-        return slo.post()
+        return await slo.post()
 
-    def put(self, slo: "Slo") -> "Response":
+    async def put(self, slo: "Slo") -> "Response":
         """Updates an existing SLO in Dynatrace.
 
         :param slo: the Slo with udpated details
 
         :returns Response: HTTP response for the request
         """
-        return slo.put()
+        return await slo.put()
 
-    def delete(self, slo_id: str) -> "Response":
+    async def delete(self, slo_id: str) -> "Response":
         """Deletes an SLO
 
         :param slo_id: The ID of the existing SLO.
 
         :returns Response: HTTP response for the request
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{slo_id}", method="DELETE"
         )
 
@@ -244,9 +246,9 @@ class Slo(DynatraceObject):
             "customDescription": self.custom_description,
         }
 
-    def post(self) -> "Response":
+    async def post(self) -> "Response":
         """Creates this object as a new SLO in Dynatrace"""
-        response = self._http_client.make_request(
+        response = await self._http_client.make_request(
             path=SloService.ENDPOINT, method="POST", params=self.to_json()
         )
         if response.status_code == 201:
@@ -255,9 +257,9 @@ class Slo(DynatraceObject):
 
         return response
 
-    def put(self) -> "Response":
+    async def put(self) -> "Response":
         """Updates an existing SLO in Dynatrace based on this object's details"""
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             path=f"{SloService.ENDPOINT}/{self.id}", method="PUT", params=self.to_json()
         )
 

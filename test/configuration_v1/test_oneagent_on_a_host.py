@@ -21,8 +21,8 @@ HOST_ID = "HOST-abcd123457"
 CLUSTER_VERSION = "1.222.47.20210712-162143"
 
 
-def test_get(dt: Dynatrace):
-    oa_host_config = dt.oneagents_config_host.get(HOST_ID)
+async def test_get(dt: Dynatrace):
+    oa_host_config = await dt.oneagents_config_host.get(HOST_ID)
 
     # type checks
     assert isinstance(oa_host_config, HostConfig)
@@ -35,8 +35,8 @@ def test_get(dt: Dynatrace):
     assert oa_host_config.id == HOST_ID
 
 
-def test_get_autoupdate(dt: Dynatrace):
-    oa_autoupdate = dt.oneagents_config_host.get_autoupdate(HOST_ID)
+async def test_get_autoupdate(dt: Dynatrace):
+    oa_autoupdate = await dt.oneagents_config_host.get_autoupdate(HOST_ID)
 
     # type checks
     assert isinstance(oa_autoupdate, HostAutoUpdateConfig)
@@ -61,8 +61,8 @@ def test_get_autoupdate(dt: Dynatrace):
     assert oa_autoupdate.metadata.cluster_version == CLUSTER_VERSION
 
 
-def test_get_monitoring(dt: Dynatrace):
-    oa_monitoring = dt.oneagents_config_host.get_monitoring(HOST_ID)
+async def test_get_monitoring(dt: Dynatrace):
+    oa_monitoring = await dt.oneagents_config_host.get_monitoring(HOST_ID)
 
     # type checks
     assert isinstance(oa_monitoring, MonitoringConfig)
@@ -78,8 +78,8 @@ def test_get_monitoring(dt: Dynatrace):
     assert oa_monitoring.metadata.cluster_version == CLUSTER_VERSION
 
 
-def test_get_technologies(dt: Dynatrace):
-    oa_technologies = dt.oneagents_config_host.get_technologies(HOST_ID)
+async def test_get_technologies(dt: Dynatrace):
+    oa_technologies = await dt.oneagents_config_host.get_technologies(HOST_ID)
 
     # type checks
     assert isinstance(oa_technologies.metadata, ConfigurationMetadata)

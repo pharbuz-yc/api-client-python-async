@@ -17,13 +17,14 @@ class MockResponse:
     def __init__(self, json_data):
         self.json_data = json_data
         self.headers = {}
-        self.content = json.dumps(json_data).encode() if json_data else None
+        self.text = json.dumps(json_data) if json_data is not None else ""
+        self.content = self.text.encode() if self.text else None
 
     def json(self):
         return self.json_data
 
 
-def local_make_request(
+async def local_make_request(
     self,
     path: str,
     params: dict | None = None,

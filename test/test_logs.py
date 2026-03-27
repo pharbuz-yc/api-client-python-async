@@ -3,13 +3,14 @@ from datetime import datetime
 from dynatrace import Dynatrace
 from dynatrace.environment_v2.logs import EventType, LogRecord, LogRecordStatus
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 
-def test_export(dt: Dynatrace):
-    logs = dt.logs.export(time_from="now-10m")
+async def test_export(dt: Dynatrace):
+    logs = await dt.logs.export(time_from="now-10m")
     assert isinstance(logs, PaginatedList)
 
-    logs = list(logs)
+    logs = await collect(logs)
     assert len(logs) == 18
 
     first = logs[0]

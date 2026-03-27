@@ -13,13 +13,14 @@ from dynatrace.configuration_v1.extensions import (
 )
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 
-def test_list(dt: Dynatrace):
-    extensions = dt.extensions.list()
+async def test_list(dt: Dynatrace):
+    extensions = await dt.extensions.list()
     assert isinstance(extensions, PaginatedList)
 
-    extensions_list = list(extensions)
+    extensions_list = await collect(extensions)
     assert len(extensions_list) == 35
     first = extensions_list[0]
 
@@ -29,8 +30,8 @@ def test_list(dt: Dynatrace):
     assert first.type == ExtensionType.ACTIVEGATE
 
 
-def test_get(dt: Dynatrace):
-    extension = dt.extensions.get("custom.python.citrixAgent")
+async def test_get(dt: Dynatrace):
+    extension = await dt.extensions.get("custom.python.citrixAgent")
     assert isinstance(extension, Extension)
     assert extension.id == "custom.python.citrixAgent"
     assert extension.name == "Citrix Virtual Apps & Virtual Desktops"
@@ -45,8 +46,10 @@ def test_get(dt: Dynatrace):
     assert first_property.type == "BOOLEAN"
 
 
-def test_get_global_configuration(dt: Dynatrace):
-    global_config = dt.extensions.get_global_configuration("custom.python.citrixAgent")
+async def test_get_global_configuration(dt: Dynatrace):
+    global_config = await dt.extensions.get_global_configuration(
+        "custom.python.citrixAgent"
+    )
     assert isinstance(global_config, GlobalExtensionConfiguration)
     assert global_config.extension_id == "custom.python.citrixAgent"
     assert global_config.enabled
@@ -54,11 +57,13 @@ def test_get_global_configuration(dt: Dynatrace):
     assert global_config.properties["log_level"] == "INFO"
 
 
-def test_get_state(dt: Dynatrace):
-    states = dt.extensions.list_states("custom.remote.python.salesforce_eventstream")
+async def test_get_state(dt: Dynatrace):
+    states = await dt.extensions.list_states(
+        "custom.remote.python.salesforce_eventstream"
+    )
     assert isinstance(states, PaginatedList)
 
-    list_states = list(states)
+    list_states = await collect(states)
     assert isinstance(list_states, list)
 
     first = list_states[0]
@@ -73,8 +78,8 @@ def test_get_state(dt: Dynatrace):
     assert first.process_id is None
 
 
-def test_get_instance_configuration(dt: Dynatrace):
-    config = dt.extensions.get_instance_configuration(
+async def test_get_instance_configuration(dt: Dynatrace):
+    config = await dt.extensions.get_instance_configuration(
         "custom.remote.python.salesforce_eventstream", "5649014104314746667"
     )
     assert isinstance(config, ExtensionConfigurationDto)
@@ -93,11 +98,11 @@ def test_get_instance_configuration(dt: Dynatrace):
     )
 
 
-def test_list_activegate_extension_modules(dt: Dynatrace):
-    modules = dt.extensions.list_activegate_extension_modules()
+async def test_list_activegate_extension_modules(dt: Dynatrace):
+    modules = await dt.extensions.list_activegate_extension_modules()
     assert isinstance(modules, PaginatedList)
 
-    list_modules = list(modules)
+    list_modules = await collect(modules)
     assert isinstance(list_modules, list)
 
     first = list_modules[0]

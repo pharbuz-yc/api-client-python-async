@@ -12,6 +12,7 @@ from dynatrace.configuration_v1.metric_events import (
     WarningReason,
 )
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 STATIC_ID = "ruxit.python.rabbitmq:node_status:node_failed"
 STATIC_NAME = "RabbitMQ Node failed"
@@ -19,11 +20,11 @@ BASELINE_ID = "d3baaaed-3441-4931-bf24-25c4e12e137f"
 BASELINE_NAME = "Mint alert for static"
 
 
-def test_list(dt: Dynatrace):
-    metric_events = dt.anomaly_detection_metric_events.list()
+async def test_list(dt: Dynatrace):
+    metric_events = await dt.anomaly_detection_metric_events.list()
     assert isinstance(metric_events, PaginatedList)
 
-    list_metric_events = list(metric_events)
+    list_metric_events = await collect(metric_events)
     assert len(list_metric_events) == 193
 
     first = list_metric_events[0]
@@ -33,14 +34,14 @@ def test_list(dt: Dynatrace):
     assert first.name == STATIC_NAME
 
 
-def test_get_full_configuration(dt: Dynatrace):
-    metric_events = dt.anomaly_detection_metric_events.list()
-    list_metric_events = list(metric_events)
+async def test_get_full_configuration(dt: Dynatrace):
+    metric_events = await dt.anomaly_detection_metric_events.list()
+    list_metric_events = await collect(metric_events)
 
     for metric_event in list_metric_events:
         if metric_event.id == STATIC_ID:
             # static
-            full = metric_event.get_full_metric_event()
+            full = await metric_event.get_full_metric_event()
 
             # type checks
             assert isinstance(full.name, str)
@@ -77,7 +78,7 @@ def test_get_full_configuration(dt: Dynatrace):
 
         elif metric_event.id == BASELINE_ID:
             # static
-            full = metric_event.get_full_metric_event()
+            full = await metric_event.get_full_metric_event()
 
             # type checks
             assert isinstance(

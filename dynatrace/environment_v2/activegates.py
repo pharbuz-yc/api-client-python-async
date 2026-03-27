@@ -70,7 +70,7 @@ class ActiveGateService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         hostname: str | None = None,
         os_type: OsType | str | None = None,
@@ -105,18 +105,20 @@ class ActiveGateService:
             "enabledModule": enabled_modules,
             "disabledModule": disabled_modules,
         }
-        return PaginatedList(
+        return await PaginatedList(
             ActiveGate,
             self.__http_client,
             "/api/v2/activeGates",
             params,
             list_item="activeGates",
-        )
+        ).initialize()
 
-    def get(self, activegate_id: str) -> "ActiveGate":
+    async def get(self, activegate_id: str) -> "ActiveGate":
         return ActiveGate(
-            raw_element=self.__http_client.make_request(
-                f"/api/v2/activeGates/{activegate_id}"
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/v2/activeGates/{activegate_id}"
+                )
             ).json()
         )
 

@@ -3,13 +3,14 @@ from datetime import datetime
 from dynatrace import Dynatrace
 from dynatrace.environment_v2.audit_logs import AuditLogEntry, EventType, UserType
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 
-def test_list(dt: Dynatrace):
-    audit_logs = dt.audit_logs.list()
+async def test_list(dt: Dynatrace):
+    audit_logs = await dt.audit_logs.list()
     assert isinstance(audit_logs, PaginatedList)
 
-    audit_logs_list = list(audit_logs)
+    audit_logs_list = await collect(audit_logs)
     assert len(audit_logs_list) == 6
 
     first = audit_logs_list[0]
@@ -29,8 +30,8 @@ def test_list(dt: Dynatrace):
     assert first.success
 
 
-def test_get(dt: Dynatrace):
-    audit_log = dt.audit_logs.get("162100314800090003")
+async def test_get(dt: Dynatrace):
+    audit_log = await dt.audit_logs.get("162100314800090003")
     assert isinstance(audit_log, AuditLogEntry)
     assert audit_log.log_id == "162100314800090003"
     assert audit_log.event_type == EventType("DELETE")

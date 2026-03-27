@@ -311,7 +311,9 @@ class AutoTagService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self, page_size: int = 200) -> PaginatedList["AutoTagShortRepresentation"]:
+    async def list(
+        self, page_size: int = 200
+    ) -> PaginatedList["AutoTagShortRepresentation"]:
         """
         List all auto tag rules.
 
@@ -319,13 +321,13 @@ class AutoTagService:
             Default value : 200
         """
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             AutoTagShortRepresentation,
             self.__http_client,
             "/api/config/v1/autoTags",
             params,
             list_item="values",
-        )
+        ).initialize()
 
 
 class ComparisonBasic(DynatraceObject):
@@ -393,11 +395,11 @@ class AutoTag(DynatraceObject):
 
 
 class AutoTagShortRepresentation(EntityShortRepresentation):
-    def get_full_configuration(self):
+    async def get_full_configuration(self):
         """
         Get the full configuration for this auto tag rule short representation.
         """
-        response = self._http_client.make_request(
-            f"/api/config/v1/autoTags/{self.id}"
+        response = (
+            await self._http_client.make_request(f"/api/config/v1/autoTags/{self.id}")
         ).json()
         return AutoTag(http_client=self._http_client, raw_element=response)

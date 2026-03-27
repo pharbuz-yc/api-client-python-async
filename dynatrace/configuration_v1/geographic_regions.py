@@ -10,20 +10,20 @@ class GeoRegionsIpAddressMappingsService:
     def __init__(self, http_client: HttpClient):
         self._http_client = http_client
 
-    def list(self) -> "IPAddressMapping":
+    async def list(self) -> "IPAddressMapping":
         """
         Lists all IP address mappings of the environment
         """
-        response = self._http_client.make_request(self.ENDPOINT).json()
+        response = (await self._http_client.make_request(self.ENDPOINT)).json()
         return IPAddressMapping(self._http_client, None, response)
 
-    def put(self, mappings: builtins.list["IPAddressMapping"]):
+    async def put(self, mappings: builtins.list["IPAddressMapping"]):
         """
         Updates the IP address mappings of the environment
         """
         data = [mapping.json() for mapping in mappings]
         body = {"ipAddressMappingRules": data}
-        self._http_client.make_request(self.ENDPOINT, method="PUT", params=body)
+        (await self._http_client.make_request(self.ENDPOINT, method="PUT", params=body))
 
 
 class IPAddressMapping(DynatraceObject):

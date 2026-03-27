@@ -24,24 +24,30 @@ class TenantTokenService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def cancel_rotation(self) -> "TenantTokenConfig":
+    async def cancel_rotation(self) -> "TenantTokenConfig":
         return TenantTokenConfig(
-            raw_element=self.__http_client.make_request(
-                "/api/v2/tenantTokenRotation/cancel", method="POST"
+            raw_element=(
+                await self.__http_client.make_request(
+                    "/api/v2/tenantTokenRotation/cancel", method="POST"
+                )
             ).json()
         )
 
-    def start_rotation(self) -> "TenantTokenConfig":
+    async def start_rotation(self) -> "TenantTokenConfig":
         return TenantTokenConfig(
-            raw_element=self.__http_client.make_request(
-                "/api/v2/tenantTokenRotation/start", method="POST"
+            raw_element=(
+                await self.__http_client.make_request(
+                    "/api/v2/tenantTokenRotation/start", method="POST"
+                )
             ).json()
         )
 
-    def finish_rotation(self) -> "TenantTokenConfig":
+    async def finish_rotation(self) -> "TenantTokenConfig":
         return TenantTokenConfig(
-            raw_element=self.__http_client.make_request(
-                "/api/v2/tenantTokenRotation/finish", method="POST"
+            raw_element=(
+                await self.__http_client.make_request(
+                    "/api/v2/tenantTokenRotation/finish", method="POST"
+                )
             ).json()
         )
 

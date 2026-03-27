@@ -13,13 +13,14 @@ from dynatrace.environment_v2.monitored_entities import EntityStub
 from dynatrace.environment_v2.schemas import ManagementZone
 from dynatrace.pagination import PaginatedList
 from dynatrace.utils import int64_to_datetime
+from test.async_utils import collect
 
 EVENT_ID = "4578933396576863909_1631255744265"
 EVENT_TYPE = "APPLICATION_OVERLOAD_PREVENTION"
 
 
-def test_list(dt: Dynatrace):
-    events = dt.events_v2.list(
+async def test_list(dt: Dynatrace):
+    events = await dt.events_v2.list(
         page_size=100,
         time_from=datetime.utcfromtimestamp(1599913748),
         time_to="1631258989895",
@@ -27,14 +28,15 @@ def test_list(dt: Dynatrace):
 
     # type checks
     assert isinstance(events, PaginatedList)
-    assert all(isinstance(e, Event) for e in events)
+    event_list = await collect(events)
+    assert all(isinstance(e, Event) for e in event_list)
 
     # value checks
-    assert len(events) == 3
+    assert len(event_list) == 3
 
 
-def test_get(dt: Dynatrace):
-    event = dt.events_v2.get(EVENT_ID)
+async def test_get(dt: Dynatrace):
+    event = await dt.events_v2.get(EVENT_ID)
 
     # type checks
     assert isinstance(event, Event)
@@ -70,19 +72,20 @@ def test_get(dt: Dynatrace):
     assert not event.frequent_event
 
 
-def test_list_types(dt: Dynatrace):
-    event_types = dt.events_v2.list_types()
+async def test_list_types(dt: Dynatrace):
+    event_types = await dt.events_v2.list_types()
 
     # type checks
     assert isinstance(event_types, PaginatedList)
-    assert all(isinstance(et, EventType) for et in event_types)
+    event_type_list = await collect(event_types)
+    assert all(isinstance(et, EventType) for et in event_type_list)
 
     # value checks
-    assert len(event_types) == 5
+    assert len(event_type_list) == 5
 
 
-def test_get_type(dt: Dynatrace):
-    type_details = dt.events_v2.get_type(EVENT_TYPE)
+async def test_get_type(dt: Dynatrace):
+    type_details = await dt.events_v2.get_type(EVENT_TYPE)
 
     # type checks
     assert isinstance(type_details, EventType)
@@ -98,8 +101,8 @@ def test_get_type(dt: Dynatrace):
     assert type_details.description == "Max user actions per minute exceeded"
 
 
-def test_ingest(dt: Dynatrace):
-    ingest = dt.events_v2.ingest(
+async def test_ingest(dt: Dynatrace):
+    ingest = await dt.events_v2.ingest(
         "CUSTOM_ALERT",
         "Dt API Test",
         properties={"test": "test"},

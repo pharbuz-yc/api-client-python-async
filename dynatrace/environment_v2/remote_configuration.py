@@ -31,7 +31,7 @@ class ActiveGatesRemoteConfigurationService:
     def __init__(self, http_client: HttpClient) -> None:
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         time_from: datetime | str | None = None,
         time_to: datetime | str | None = None,
@@ -46,15 +46,15 @@ class ActiveGatesRemoteConfigurationService:
             "from": timestamp_to_string(time_from),
             "to": timestamp_to_string(time_to),
         }
-        return PaginatedList(
+        return await PaginatedList(
             RemoteConfigurationManagementJobSummary,
             self.__http_client,
             target_url=self.ENDPOINT,
             list_item="jobs",
             target_params=params,
-        )
+        ).initialize()
 
-    def post(
+    async def post(
         self,
         entities: builtins.list[str],
         operations: builtins.list["RemoteConfigurationManagementOperation"],
@@ -68,22 +68,24 @@ class ActiveGatesRemoteConfigurationService:
         payload = RemoteConfigurationManagementOperationActiveGateRequest(
             entities=entities, operations=operations
         )
-        response = self.__http_client.make_request(
-            self.ENDPOINT, method="POST", params=payload.to_json()
+        response = (
+            await self.__http_client.make_request(
+                self.ENDPOINT, method="POST", params=payload.to_json()
+            )
         ).json()
         return RemoteConfigurationManagementJob(raw_element=response)
 
-    def get_current(self) -> Optional["RemoteConfigurationManagementJob"]:
+    async def get_current(self) -> Optional["RemoteConfigurationManagementJob"]:
         """Gets remote configuration management job that is currently running
 
         :return: The currently running job or None if no job is running
         """
-        response = self.__http_client.make_request(f"{self.ENDPOINT}/current")
+        response = await self.__http_client.make_request(f"{self.ENDPOINT}/current")
         if not response.content:
             return None
         return RemoteConfigurationManagementJob(raw_element=response.json())
 
-    def post_preview(
+    async def post_preview(
         self,
         entities: builtins.list[str],
         operations: builtins.list["RemoteConfigurationManagementOperation"],
@@ -97,15 +99,15 @@ class ActiveGatesRemoteConfigurationService:
         payload = RemoteConfigurationManagementOperationActiveGateRequest(
             entities=entities, operations=operations
         )
-        return PaginatedList(
+        return await PaginatedList(
             RemoteConfigurationManagementJobPreview,
             self.__http_client,
             target_url=f"{self.ENDPOINT}/preview",
             list_item="previews",
             target_params=payload.to_json(),
-        )
+        ).initialize()
 
-    def validate(
+    async def validate(
         self,
         entities: builtins.list[str],
         operations: builtins.list["RemoteConfigurationManagementOperation"],
@@ -119,7 +121,7 @@ class ActiveGatesRemoteConfigurationService:
         payload = RemoteConfigurationManagementOperationActiveGateRequest(
             entities=entities, operations=operations
         )
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             f"{self.ENDPOINT}/validator", method="POST", params=payload.to_json()
         )
         if not response.content:
@@ -128,13 +130,15 @@ class ActiveGatesRemoteConfigurationService:
             raw_element=response.json()
         )
 
-    def get(self, job_id: str) -> "RemoteConfigurationManagementJob":
+    async def get(self, job_id: str) -> "RemoteConfigurationManagementJob":
         """Gets the specified remote configuration management job
 
         :param job_id: The ID of the required job
         :return: The specified job
         """
-        response = self.__http_client.make_request(f"{self.ENDPOINT}/{job_id}").json()
+        response = (
+            await self.__http_client.make_request(f"{self.ENDPOINT}/{job_id}")
+        ).json()
         return RemoteConfigurationManagementJob(raw_element=response)
 
 
@@ -144,7 +148,7 @@ class OneAgentsRemoteConfigurationService:
     def __init__(self, http_client: HttpClient) -> None:
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         time_from: datetime | str | None = None,
         time_to: datetime | str | None = None,
@@ -159,15 +163,15 @@ class OneAgentsRemoteConfigurationService:
             "from": timestamp_to_string(time_from),
             "to": timestamp_to_string(time_to),
         }
-        return PaginatedList(
+        return await PaginatedList(
             RemoteConfigurationManagementJobSummary,
             self.__http_client,
             target_url=self.ENDPOINT,
             list_item="jobs",
             target_params=params,
-        )
+        ).initialize()
 
-    def post(
+    async def post(
         self,
         entities: builtins.list[str],
         operations: builtins.list["RemoteConfigurationManagementOperation"],
@@ -181,22 +185,24 @@ class OneAgentsRemoteConfigurationService:
         payload = RemoteConfigurationManagementOperationOneAgentRequest(
             entities=entities, operations=operations
         )
-        response = self.__http_client.make_request(
-            self.ENDPOINT, method="POST", params=payload.to_json()
+        response = (
+            await self.__http_client.make_request(
+                self.ENDPOINT, method="POST", params=payload.to_json()
+            )
         ).json()
         return RemoteConfigurationManagementJob(raw_element=response)
 
-    def get_current(self) -> Optional["RemoteConfigurationManagementJob"]:
+    async def get_current(self) -> Optional["RemoteConfigurationManagementJob"]:
         """Gets remote configuration management job that is currently running
 
         :return: The currently running job or None if no job is running
         """
-        response = self.__http_client.make_request(f"{self.ENDPOINT}/current")
+        response = await self.__http_client.make_request(f"{self.ENDPOINT}/current")
         if not response.content:
             return None
         return RemoteConfigurationManagementJob(raw_element=response.json())
 
-    def post_preview(
+    async def post_preview(
         self,
         entities: builtins.list[str],
         operations: builtins.list["RemoteConfigurationManagementOperation"],
@@ -210,15 +216,15 @@ class OneAgentsRemoteConfigurationService:
         payload = RemoteConfigurationManagementOperationOneAgentRequest(
             entities=entities, operations=operations
         )
-        return PaginatedList(
+        return await PaginatedList(
             RemoteConfigurationManagementJobPreview,
             self.__http_client,
             target_url=f"{self.ENDPOINT}/preview",
             list_item="previews",
             target_params=payload.to_json(),
-        )
+        ).initialize()
 
-    def validate(
+    async def validate(
         self,
         entities: builtins.list[str],
         operations: builtins.list["RemoteConfigurationManagementOperation"],
@@ -232,7 +238,7 @@ class OneAgentsRemoteConfigurationService:
         payload = RemoteConfigurationManagementOperationOneAgentRequest(
             entities=entities, operations=operations
         )
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             f"{self.ENDPOINT}/validator", method="POST", params=payload.to_json()
         )
         if not response.content:
@@ -241,13 +247,15 @@ class OneAgentsRemoteConfigurationService:
             raw_element=response.json()
         )
 
-    def get(self, job_id: str) -> "RemoteConfigurationManagementJob":
+    async def get(self, job_id: str) -> "RemoteConfigurationManagementJob":
         """Gets the specified remote configuration management job
 
         :param job_id: The ID of the required job
         :return: The specified job
         """
-        response = self.__http_client.make_request(f"{self.ENDPOINT}/{job_id}").json()
+        response = (
+            await self.__http_client.make_request(f"{self.ENDPOINT}/{job_id}")
+        ).json()
         return RemoteConfigurationManagementJob(raw_element=response)
 
 

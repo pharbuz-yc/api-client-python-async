@@ -72,7 +72,7 @@ class ManagementZoneService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self, page_size: int = 200
     ) -> PaginatedList["ManagementZoneShortRepresentation"]:
         """
@@ -82,35 +82,35 @@ class ManagementZoneService:
             Default value : 200
         """
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             ManagementZoneShortRepresentation,
             self.__http_client,
             f"{self.ENDPOINT}",
             params,
             list_item="values",
-        )
+        ).initialize()
 
-    def get(self, management_zone_id: str) -> "ManagementZone":
+    async def get(self, management_zone_id: str) -> "ManagementZone":
         """Gets the description of a management zone referenced by ID.
 
         :param _id: The ID of the required management zone.
 
         :returns Event: the requested management zone
         """
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{management_zone_id}"
         )
         return ManagementZone(
             raw_element=response.json(), http_client=self.__http_client
         )
 
-    def delete(self, management_zone_id: str):
+    async def delete(self, management_zone_id: str):
         """Deletes the specified management zone
 
         :param networkzone_id: the ID of the management zone
         :return: HTTP response
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{management_zone_id}", method="DELETE"
         )
 
@@ -182,11 +182,13 @@ class ManagementZone(DynatraceObject):
 
 
 class ManagementZoneShortRepresentation(EntityShortRepresentation):
-    def get_full_configuration(self):
+    async def get_full_configuration(self):
         """
         Get the full configuration for this management zone short representation.
         """
-        response = self._http_client.make_request(
-            f"{ManagementZoneService.ENDPOINT}/{self.id}"
+        response = (
+            await self._http_client.make_request(
+                f"{ManagementZoneService.ENDPOINT}/{self.id}"
+            )
         ).json()
         return ManagementZone(http_client=self._http_client, raw_element=response)

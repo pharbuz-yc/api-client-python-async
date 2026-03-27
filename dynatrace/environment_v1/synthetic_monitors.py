@@ -153,28 +153,30 @@ class SyntheticMonitorsService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self, monitor_type: MonitorType | str | None = None
     ) -> PaginatedList[MonitorCollectionElement]:
         """
         Lists all synthetic monitors in the environment.
         """
         params = {"type": MonitorType(monitor_type).value if monitor_type else None}
-        return PaginatedList(
+        return await PaginatedList(
             MonitorCollectionElement,
             self.__http_client,
             "/api/v1/synthetic/monitors",
             target_params=params,
             list_item="monitors",
-        )
+        ).initialize()
 
-    def get_full_monitor_configuration(self, monitor_id: str) -> SyntheticMonitor:
+    async def get_full_monitor_configuration(self, monitor_id: str) -> SyntheticMonitor:
         """
         Get full monitor configuration for the specified monitor id (aka entity id).
         """
         return SyntheticMonitor(
             self.__http_client,
-            raw_element=self.__http_client.make_request(
-                f"/api/v1/synthetic/monitors/{monitor_id}"
+            raw_element=(
+                await self.__http_client.make_request(
+                    f"/api/v1/synthetic/monitors/{monitor_id}"
+                )
             ).json(),
         )

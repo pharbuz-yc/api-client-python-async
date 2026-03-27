@@ -15,21 +15,21 @@ from dynatrace.environment_v2.schemas import ConfigurationMetadata
 from dynatrace.pagination import PaginatedList
 
 
-def test_list(dt: Dynatrace):
-    management_zones = dt.management_zones.list()
+async def test_list(dt: Dynatrace):
+    management_zones = await dt.management_zones.list()
     assert isinstance(management_zones, PaginatedList)
 
-    for management_zone in management_zones:
+    async for management_zone in management_zones:
         assert isinstance(management_zone, ManagementZoneShortRepresentation)
         assert management_zone.id == "6507829326603756920"
         assert management_zone.name == "Frontend Services"
         break
 
 
-def test_get(dt: Dynatrace):
-    management_zones = dt.management_zones.list()
-    for management_zone in management_zones:
-        full_management_zone = management_zone.get_full_configuration()
+async def test_get(dt: Dynatrace):
+    management_zones = await dt.management_zones.list()
+    async for management_zone in management_zones:
+        full_management_zone = await management_zone.get_full_configuration()
         assert isinstance(full_management_zone, ManagementZone)
         assert isinstance(full_management_zone.metadata, ConfigurationMetadata)
         assert (

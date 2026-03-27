@@ -16,7 +16,7 @@ limitations under the License.
 
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -32,7 +32,7 @@ class DeploymentService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def get_agent_installer_latest_metainfo(
+    async def get_agent_installer_latest_metainfo(
         self,
         os_type: str,
         installer_type: str,
@@ -67,13 +67,13 @@ class DeploymentService:
         :returns InstallerMetaInfo: the latest version of the installer of that type
         """
         params = {"flavor": flavor, "arch": arch, "bitness": bitness}
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_AGENT}/{os_type}/{installer_type}/latest/metainfo",
             params=params,
         )
         return InstallerMetaInfoDto(raw_element=response.json())
 
-    def get_agent_installer(
+    async def get_agent_installer(
         self,
         os_type: str,
         installer_type: str,
@@ -129,13 +129,13 @@ class DeploymentService:
             "networkZone": network_zone,
         }
         headers = {"If-None-Match": if_none_match} if if_none_match else None
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_AGENT}/{os_type}/{installer_type}/{version}",
             params=params,
             headers=headers,
         )
 
-    def get_agent_installer_connection_info(
+    async def get_agent_installer_connection_info(
         self, network_zone: str | None = "default", version: str | None = None
     ) -> "ConnectionInfo":
         """Gets the connectivity information for OneAgent.
@@ -146,13 +146,13 @@ class DeploymentService:
         :returns ConnectionInfo: connectivity information
         """
         params = {"networkZone": network_zone, "version": version}
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_AGENT}/connectioninfo", params=params
         )
 
         return ConnectionInfo(raw_element=response.json())
 
-    def get_agent_installer_connection_endpoints(
+    async def get_agent_installer_connection_endpoints(
         self, network_zone: str | None = "default"
     ) -> str:
         """Gets the list of the ActiveGate-Endpoints to be used for Agents.
@@ -164,12 +164,14 @@ class DeploymentService:
         :returns str: ActiveGate Endpoints separated by semicolons
         """
         params = {"networkZone": network_zone}
-        return self.__http_client.make_request(
-            path=f"{self.ENDPOINT_INSTALLER_AGENT}/connectioninfo/endpoints",
-            params=params,
+        return (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT_INSTALLER_AGENT}/connectioninfo/endpoints",
+                params=params,
+            )
         ).text
 
-    def list_agent_installer_versions(
+    async def list_agent_installer_versions(
         self,
         os_type: str,
         installer_type: str,
@@ -198,14 +200,14 @@ class DeploymentService:
         :returns AgentInstallerVersions: list of available versions of the OneAgent installer
         """
         params = {"flavor": flavor, "arch": arch}
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_AGENT}/versions/{os_type}/{installer_type}",
             params=params,
         )
 
         return AgentInstallerVersions(raw_element=response.json())
 
-    def get_gateway_installer_connection_info(
+    async def get_gateway_installer_connection_info(
         self, network_zone: str | None = "default"
     ) -> "ActiveGateConnectionInfo":
         """Gets the connectivity information for Environment ActiveGate.
@@ -215,13 +217,13 @@ class DeploymentService:
         :returns ActiveGateConnectionInfo: connectivity information
         """
         params = {"networkZone": network_zone}
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_GATEWAY}/connectioninfo", params=params
         )
 
         return ActiveGateConnectionInfo(raw_element=response.json())
 
-    def list_gateway_installer_versions(
+    async def list_gateway_installer_versions(
         self, os_type: str
     ) -> "ActiveGateInstallerVersions":
         """Lists all available versions of ActiveGate installer.
@@ -232,12 +234,12 @@ class DeploymentService:
 
         :returns ActiveGateInstallerVersions: all available versions of the installer
         """
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_GATEWAY}/versions/{os_type}"
         )
         return ActiveGateInstallerVersions(raw_element=response.json())
 
-    def get_gateway_installer(
+    async def get_gateway_installer(
         self, os_type: str, version: str = "latest", if_none_match: str | None = None
     ) -> "Response":
         """Downloads the configured standard ActiveGate installer.
@@ -255,12 +257,12 @@ class DeploymentService:
         if version != "latest":
             version = "version/" + version
         headers = {"If-None-Match": if_none_match} if if_none_match else None
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT_INSTALLER_GATEWAY}/{os_type}/{version}",
             headers=headers,
         )
 
-    def list_boshrelease_agent_versions(
+    async def list_boshrelease_agent_versions(
         self, os_type: str
     ) -> "BoshReleaseAvailableVersions":
         """Lists available OneAgent versions for BOSH release tarballs.
@@ -271,12 +273,12 @@ class DeploymentService:
 
         :returns BoshReleaseAvailableVersions: available versions
         """
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_BOSHRELEASE}/versions/{os_type}"
         )
         return BoshReleaseAvailableVersions(raw_element=response.json())
 
-    def get_boshrelease_agent_checksum(
+    async def get_boshrelease_agent_checksum(
         self,
         os_type: str,
         version: str,
@@ -296,14 +298,14 @@ class DeploymentService:
         :returns BoshReleaseChecksum: checksum of the BOSH release tarball
         """
         params = {"skipMetadata": skip_metadata, "networkZone": network_zone}
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             path=f"{self.ENDPOINT_BOSHRELEASE}/agent/{os_type}/version/{version}/checksum",
             params=params,
         )
 
         return BoshReleaseChecksum(raw_element=response.json())
 
-    def get_boshrelease_agent(
+    async def get_boshrelease_agent(
         self,
         os_type: str,
         version: str,
@@ -323,24 +325,24 @@ class DeploymentService:
         :returns Response: HTTP Response to the request. Can be written to file from the "content" attribute.
         """
         params = {"skipMetadata": skip_metadata, "networkZone": network_zone}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT_BOSHRELEASE}/agent/{os_type}/version/{version}",
             params=params,
         )
 
-    def get_lambda_agent_versions(self) -> "LatestLambdaLayerNames":
+    async def get_lambda_agent_versions(self) -> "LatestLambdaLayerNames":
         """Get the latest version names of the OneAgent for AWS Lambda.
         Version names include Java, Node.js, and Python AWS Lambda runtime.
 
         :returns LatestLambdaLayerNames: version names
         """
         return LatestLambdaLayerNames(
-            raw_element=self.__http_client.make_request(
-                path=f"{self.ENDPOINT_LAMBDA}"
+            raw_element=(
+                await self.__http_client.make_request(path=f"{self.ENDPOINT_LAMBDA}")
             ).json()
         )
 
-    def get_orchestration_agent(
+    async def get_orchestration_agent(
         self, orchestration_type: str, version: str = "latest"
     ) -> "Response":
         """Downloads the OneAgent deployment orchestration tarball.
@@ -355,11 +357,11 @@ class DeploymentService:
         """
         if version != "latest":
             version = "version/" + version
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT_ORCHESTRATION}/{orchestration_type}/{version}"
         )
 
-    def get_orchestration_agent_signature(
+    async def get_orchestration_agent_signature(
         self, orchestration_type: str, version: str = "latest"
     ) -> "Response":
         """ ""Downloads the signature matching the OneAgent deployment orchestration tarball.
@@ -374,7 +376,7 @@ class DeploymentService:
         """
         if version != "latest":
             version = "version/" + version
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT_ORCHESTRATION}/{orchestration_type}/{version}/signature"
         )
 

@@ -16,7 +16,7 @@ limitations under the License.
 
 from enum import Enum
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -223,12 +223,14 @@ class XMattersNotificationConfig(Notification):
 
 
 class NotificationConfigStub(DynatraceObject):
-    def get_full_configuration(self) -> Notification:
+    async def get_full_configuration(self) -> Notification:
         """
         Gets the full notification configuration for this stub.
         """
-        response = self._http_client.make_request(
-            f"/api/config/v1/notifications/{self.id}"
+        response = (
+            await self._http_client.make_request(
+                f"/api/config/v1/notifications/{self.id}"
+            )
         ).json()
         if self.type == NotificationType.ANSIBLETOWER:
             notification = AnsibleTowerNotificationConfig(
@@ -266,11 +268,11 @@ class NotificationConfigStub(DynatraceObject):
             notification = Notification(self._http_client, None, response)
         return notification
 
-    def delete(self) -> Response:
+    async def delete(self) -> Response:
         """
         Delete the notification for this stub.
         """
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             f"/api/config/v1/notifications/{self.id}", method="DELETE"
         )
 
@@ -285,21 +287,21 @@ class NotificationService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList[NotificationConfigStub]:
+    async def list(self) -> PaginatedList[NotificationConfigStub]:
         """
         Lists all alerting profiles in the environmemt. No configurable parameters.
         """
-        return PaginatedList(
+        return await PaginatedList(
             NotificationConfigStub,
             self.__http_client,
             "/api/config/v1/notifications",
             list_item="values",
-        )
+        ).initialize()
 
-    def delete(self, notification_id: str) -> Response:
+    async def delete(self, notification_id: str) -> Response:
         """
         Delete the notification with the specified id.
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/config/v1/notifications/{notification_id}", method="DELETE"
         )

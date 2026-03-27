@@ -3,6 +3,7 @@ This file can be used during development to automatically generate mock data fro
 Please check CONTRIBUTING.md for details
 """
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -16,8 +17,8 @@ from dynatrace.utils import slugify
 
 
 @wrapt.patch_function_wrapper("dynatrace.http_client", "HttpClient.make_request")
-def dump_to_json(wrapped, instance, args, kwargs):
-    r = wrapped(*args, **kwargs)
+async def dump_to_json(wrapped, instance, args, kwargs):
+    r = await wrapped(*args, **kwargs)
     method = kwargs.get("method", "GET")
     params = kwargs.get("params", "")
     query_params = kwargs.get("query_params", "")
@@ -52,18 +53,17 @@ def setup_log():
     return log
 
 
-def main():
-    dt = Dynatrace(
+async def main():
+    async with Dynatrace(
         os.getenv("DYNATRACE_TENANT_URL"),
         os.getenv("DYNATRACE_API_TOKEN"),
         log=setup_log(),
-    )
-
-    # TODO - Code here as you add new endpoints, during development
-    # Any requests are going to be recorded in the `test/mock` folder and can later be used to write tests.
-    for m in dt.metrics.list(page_size=500):
-        print(m.metric_id)
+    ) as dt:
+        # TODO - Code here as you add new endpoints, during development
+        # Any requests are going to be recorded in the `test/mock` folder and can later be used to write tests.
+        for m in await dt.metrics.list(page_size=500):
+            print(m.metric_id)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

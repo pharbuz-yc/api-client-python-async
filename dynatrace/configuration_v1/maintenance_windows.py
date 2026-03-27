@@ -17,7 +17,7 @@ limitations under the License.
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.environment_v2.custom_tags import METag
@@ -180,7 +180,7 @@ class MaintenanceWindow(DynatraceObject):
         self.scope: Scope = Scope(raw_element=raw_element.get("scope"))
         self.schedule: Schedule = Schedule(raw_element=raw_element.get("schedule"))
 
-    def post(self) -> EntityShortRepresentation:
+    async def post(self) -> EntityShortRepresentation:
         """Creates the Maintenance Window configuration in Dynatrace (POST).
 
         :param maintenance_window: the Maintenance Window configuration details
@@ -193,7 +193,7 @@ class MaintenanceWindow(DynatraceObject):
             raise ValueError(
                 "Object does not have an HTTP Client. Use maintenance_window.post() instead."
             )
-        response = self._http_client.make_request(
+        response = await self._http_client.make_request(
             path=MaintenanceWindowService.ENDPOINT, params=self.to_json(), method="POST"
         )
         self.id = response.json().get("id")
@@ -221,27 +221,27 @@ class MaintenanceWindowService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(self) -> PaginatedList["MaintenanceWindowStub"]:
+    async def list(self) -> PaginatedList["MaintenanceWindowStub"]:
         """
         Lists all maintenance windows in the environment. No configurable parameters.
         """
-        return PaginatedList(
+        return await PaginatedList(
             MaintenanceWindowStub, self.__http_client, self.ENDPOINT, list_item="values"
-        )
+        ).initialize()
 
-    def get(self, mw_id: str) -> MaintenanceWindow:
+    async def get(self, mw_id: str) -> MaintenanceWindow:
         """Gets the full details of the Maintenance Window referenced by ID.
 
         :param mw_id: ID of the alerting profile
 
         :returns AlertingProfile: alerting profile details
         """
-        response = self.__http_client.make_request(f"{self.ENDPOINT}/{mw_id}")
+        response = await self.__http_client.make_request(f"{self.ENDPOINT}/{mw_id}")
         return MaintenanceWindow(
             http_client=self.__http_client, raw_element=response.json()
         )
 
-    def post(self, mw: MaintenanceWindow) -> EntityShortRepresentation:
+    async def post(self, mw: MaintenanceWindow) -> EntityShortRepresentation:
         """Creates the Maintenance Window configuration in Dynatrace (POST).
 
         :param maintenace_window: the Maintenance Window configuration details
@@ -250,7 +250,7 @@ class MaintenanceWindowService:
         """
         if not mw._http_client:
             mw._http_client = self.__http_client
-        return mw.post()
+        return await mw.post()
 
     def create_schedule(
         self,
@@ -278,7 +278,7 @@ class MaintenanceWindowService:
         )
         return Schedule.create(recurrence_type, start, end, zone_id, recurrence)
 
-    def create(
+    async def create(
         self,
         name: str,
         description: str,
@@ -309,16 +309,18 @@ class MaintenanceWindowService:
             },
         }
 
-        response = self.__http_client.make_request(
-            self.ENDPOINT, method="POST", params=body
+        response = (
+            await self.__http_client.make_request(
+                self.ENDPOINT, method="POST", params=body
+            )
         ).json()
         return MaintenanceWindowCreated(raw_element=response)
 
-    def delete(self, zone_id: str) -> Response:
+    async def delete(self, zone_id: str) -> Response:
         """
         Delete the maintenance window with the specified id
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"{self.ENDPOINT}/{zone_id}", method="DELETE"
         )
 
@@ -336,11 +338,13 @@ class MaintenanceWindowStub(DynatraceObject):
         self.name: str = raw_element.get("name")
         self.description: str = raw_element.get("description")
 
-    def get_full_maintenance_window(self) -> MaintenanceWindow:
+    async def get_full_maintenance_window(self) -> MaintenanceWindow:
         """
         Gets the full maintenance window for this stub
         """
-        response = self._http_client.make_request(
-            f"{MaintenanceWindowService.ENDPOINT}/{self.id}"
+        response = (
+            await self._http_client.make_request(
+                f"{MaintenanceWindowService.ENDPOINT}/{self.id}"
+            )
         ).json()
         return MaintenanceWindow(self._http_client, None, response)

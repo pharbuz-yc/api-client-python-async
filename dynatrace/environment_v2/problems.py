@@ -18,7 +18,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.alerting_profiles import AlertingProfileStub
 from dynatrace.dynatrace_object import DynatraceObject
@@ -36,7 +36,7 @@ class ProblemService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         problem_selector: str | None = None,
         entity_selector: str | None = None,
@@ -59,27 +59,29 @@ class ProblemService:
             "sort": sort,
             "pageSize": page_size,
         }
-        return PaginatedList(
+        return await PaginatedList(
             target_class=Problem,
             http_client=self.__http_client,
             target_url=self.ENDPOINT,
             target_params=params,
             list_item="problems",
-        )
+        ).initialize()
 
-    def get(self, problem_id: str, fields: str | None = None) -> "Problem":
+    async def get(self, problem_id: str, fields: str | None = None) -> "Problem":
         """Gets a Problem by specifying its id.
 
         :param problem_id: the ID of the Problem
         :return: a Problem along with its details
         """
         params = {"fields": fields}
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{problem_id}", params=params
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{problem_id}", params=params
+            )
         ).json()
         return Problem(raw_element=response)
 
-    def close(self, problem_id: str, message: str) -> "ProblemCloseResult":
+    async def close(self, problem_id: str, message: str) -> "ProblemCloseResult":
         """Closes an open Problem leaving a closing message as comment
 
         :param message: message to leave as closing comment
@@ -87,12 +89,14 @@ class ProblemService:
         :return: details of the closed problem result. Blank details if the problem was already closed.
         """
         params = {"message": message}
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{problem_id}/close", method="POST", params=params
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{problem_id}/close", method="POST", params=params
+            )
         ).json()
         return ProblemCloseResult(raw_element=response)
 
-    def list_comments(
+    async def list_comments(
         self, problem_id: str, page_size: int | None = 10
     ) -> PaginatedList["Comment"]:
         """Gets a list of comments belonging to a given Problem.
@@ -102,27 +106,29 @@ class ProblemService:
         :return: a list of the Problem's comments
         """
         params = {"pageSize": page_size}
-        return PaginatedList(
+        return await PaginatedList(
             target_class=Comment,
             http_client=self.__http_client,
             target_url=f"{self.ENDPOINT}/{problem_id}/comments",
             target_params=params,
             list_item="comments",
-        )
+        ).initialize()
 
-    def get_comment(self, problem_id: str, comment_id: str) -> "Comment":
+    async def get_comment(self, problem_id: str, comment_id: str) -> "Comment":
         """Gets a specific Comment from a specific Problem
 
         :param problem_id: the ID of the Problem
         :param comment_id: the ID of the Comment
         :return: a Comment along with its details
         """
-        response = self.__http_client.make_request(
-            path=f"{self.ENDPOINT}/{problem_id}/comments/{comment_id}"
+        response = (
+            await self.__http_client.make_request(
+                path=f"{self.ENDPOINT}/{problem_id}/comments/{comment_id}"
+            )
         ).json()
         return Comment(raw_element=response)
 
-    def add_comment(
+    async def add_comment(
         self, problem_id: str, message: str, context: str | None = None
     ) -> Response:
         """Adds a new Comment on the specified Problem.
@@ -133,11 +139,11 @@ class ProblemService:
         :return: HTTP Response
         """
         params = {"message": message, "context": context}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{problem_id}/comments", params=params, method="POST"
         )
 
-    def update_comment(
+    async def update_comment(
         self, problem_id: str, comment_id: str, message: str, context: str | None = None
     ) -> Response:
         """Updates the specified Comment on a Problem.
@@ -149,20 +155,20 @@ class ProblemService:
         :return: HTTP Response
         """
         params = {"message": message, "context": context}
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{problem_id}/comments/{comment_id}",
             params=params,
             method="PUT",
         )
 
-    def delete_comment(self, problem_id: str, comment_id: str) -> Response:
+    async def delete_comment(self, problem_id: str, comment_id: str) -> Response:
         """Deletes the specified Comment from a Problem.
 
         :param problem_id: the ID of the Problem
         :param comment_id: the ID of the Comment
         :return: HTTP Response
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             path=f"{self.ENDPOINT}/{problem_id}/comments/{comment_id}", method="DELETE"
         )
 

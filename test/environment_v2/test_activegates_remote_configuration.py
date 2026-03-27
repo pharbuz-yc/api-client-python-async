@@ -12,12 +12,12 @@ from dynatrace.pagination import PaginatedList
 TEST_ENTITY_ID = "0x2b7c0b02"
 
 
-def test_list(dt: Dynatrace):
-    jobs = dt.activegates_remote_configuration.list()
+async def test_list(dt: Dynatrace):
+    jobs = await dt.activegates_remote_configuration.list()
 
     assert isinstance(jobs, PaginatedList)
 
-    for job in jobs:
+    async for job in jobs:
         assert isinstance(job, RemoteConfigurationManagementJobSummary)
         assert hasattr(job, "id")
         assert hasattr(job, "entity_type")
@@ -26,14 +26,14 @@ def test_list(dt: Dynatrace):
         break
 
 
-def test_post(dt: Dynatrace):
+async def test_post(dt: Dynatrace):
     operation = RemoteConfigurationManagementOperation.build(
         attribute=AttributeType.NETWORK_ZONE,
         operation=OperationType.SET,
         value="test-zone",
     )
 
-    job = dt.activegates_remote_configuration.post(
+    job = await dt.activegates_remote_configuration.post(
         entities=[TEST_ENTITY_ID], operations=[operation]
     )
 
@@ -46,8 +46,8 @@ def test_post(dt: Dynatrace):
     assert job.operations[0].value == "test-zone"
 
 
-def test_get_current(dt: Dynatrace):
-    current_job = dt.activegates_remote_configuration.get_current()
+async def test_get_current(dt: Dynatrace):
+    current_job = await dt.activegates_remote_configuration.get_current()
 
     if current_job is not None:
         assert current_job.id is not None
@@ -55,21 +55,21 @@ def test_get_current(dt: Dynatrace):
         assert current_job.processed_entities_count <= current_job.total_entities_count
 
 
-def test_post_preview(dt: Dynatrace):
+async def test_post_preview(dt: Dynatrace):
     operation = RemoteConfigurationManagementOperation.build(
         attribute=AttributeType.NETWORK_ZONE,
         operation=OperationType.SET,
         value="test-zone",
     )
 
-    previews = dt.activegates_remote_configuration.post_preview(
+    previews = await dt.activegates_remote_configuration.post_preview(
         entities=[TEST_ENTITY_ID],
         operations=[operation],
     )
 
     assert isinstance(previews, PaginatedList)
 
-    for preview in previews:
+    async for preview in previews:
         assert isinstance(preview, RemoteConfigurationManagementJobPreview)
         assert preview.attribute == AttributeType.NETWORK_ZONE
         assert preview.operation == OperationType.SET
@@ -79,13 +79,13 @@ def test_post_preview(dt: Dynatrace):
         break
 
 
-def test_validate(dt: Dynatrace):
+async def test_validate(dt: Dynatrace):
     operation = RemoteConfigurationManagementOperation.build(
         attribute=AttributeType.NETWORK_ZONE,
         operation=OperationType.SET,
         value="test-zone",
     )
-    validation_result = dt.activegates_remote_configuration.validate(
+    validation_result = await dt.activegates_remote_configuration.validate(
         entities=[TEST_ENTITY_ID], operations=[operation]
     )
 
@@ -98,9 +98,9 @@ def test_validate(dt: Dynatrace):
         assert isinstance(validation_result.invalid_operations, list)
 
 
-def test_get_job(dt: Dynatrace):
+async def test_get_job(dt: Dynatrace):
     ID = "7974003406714390819"
-    job = dt.activegates_remote_configuration.get(ID)
+    job = await dt.activegates_remote_configuration.get(ID)
 
     assert job is not None
     assert job.id == ID

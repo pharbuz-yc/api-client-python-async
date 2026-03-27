@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.configuration_v1.tile import Tile
 from dynatrace.dynatrace_object import DynatraceObject
@@ -27,7 +27,7 @@ class DashboardService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self, owner: str = None, tags: list[str] = None
     ) -> PaginatedList["DashboardStub"]:
         """
@@ -37,38 +37,40 @@ class DashboardService:
             The dashboard must match all the specified tags.
         """
         params = {"owner": owner, "tags": tags}
-        return PaginatedList(
+        return await PaginatedList(
             DashboardStub,
             self.__http_client,
             "/api/config/v1/dashboards",
             params,
             list_item="dashboards",
-        )
+        ).initialize()
 
-    def get(self, dashboard_id: str) -> "Dashboard":
+    async def get(self, dashboard_id: str) -> "Dashboard":
         """
         Gets the properties of the specified dashboard
         """
-        response = self.__http_client.make_request(
-            f"/api/config/v1/dashboards/{dashboard_id}"
+        response = (
+            await self.__http_client.make_request(
+                f"/api/config/v1/dashboards/{dashboard_id}"
+            )
         ).json()
         return Dashboard(self.__http_client, None, response)
 
-    def post(self, body: dict):
-        return self.__http_client.make_request(
+    async def post(self, body: dict):
+        return await self.__http_client.make_request(
             "/api/config/v1/dashboards", params=body, method="POST"
         )
 
-    def put(self, dashboard_id: str, body: dict):
-        return self.__http_client.make_request(
+    async def put(self, dashboard_id: str, body: dict):
+        return await self.__http_client.make_request(
             f"/api/config/v1/dashboards/{dashboard_id}", params=body, method="PUT"
         )
 
-    def delete(self, dashboard_id: str) -> Response:
+    async def delete(self, dashboard_id: str) -> Response:
         """
         Deletes the specified dashboard
         """
-        return self.__http_client.make_request(
+        return await self.__http_client.make_request(
             f"/api/config/v1/dashboards/{dashboard_id}", method="DELETE"
         )
 
@@ -116,11 +118,11 @@ class Dashboard(DynatraceObject):
 
 
 class DashboardStub(DynatraceObject):
-    def delete(self) -> Response:
+    async def delete(self) -> Response:
         """
         Deletes this dashboard
         """
-        return self._http_client.make_request(
+        return await self._http_client.make_request(
             f"/api/config/v1/dashboards/{self.id}", method="DELETE"
         )
 
@@ -129,11 +131,11 @@ class DashboardStub(DynatraceObject):
         self.name: str = raw_element.get("name")
         self.owner: str = raw_element.get("owner")
 
-    def get_full_dashboard(self) -> Dashboard:
+    async def get_full_dashboard(self) -> Dashboard:
         """
         Gets the full dashboard for this stub
         """
-        response = self._http_client.make_request(
-            f"/api/config/v1/dashboards/{self.id}"
+        response = (
+            await self._http_client.make_request(f"/api/config/v1/dashboards/{self.id}")
         ).json()
         return Dashboard(self._http_client, None, response)

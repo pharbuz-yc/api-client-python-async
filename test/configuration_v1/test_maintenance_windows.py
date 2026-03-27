@@ -11,16 +11,17 @@ from dynatrace.configuration_v1.maintenance_windows import (
 from dynatrace.environment_v2.custom_tags import METag, TagContext
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 ID = "b6376a12-0b82-4069-9a41-0e55ef9a1f44"
 NAME = "Example Window"
 
 
-def test_list(dt: Dynatrace):
-    mw = dt.maintenance_windows.list()
+async def test_list(dt: Dynatrace):
+    mw = await dt.maintenance_windows.list()
     assert isinstance(mw, PaginatedList)
 
-    list_mw = list(mw)
+    list_mw = await collect(mw)
     assert len(list_mw) == 3
 
     first = list_mw[0]
@@ -30,8 +31,8 @@ def test_list(dt: Dynatrace):
     assert first.name == NAME
 
 
-def test_get(dt: Dynatrace):
-    mw = dt.maintenance_windows.get(mw_id=ID)
+async def test_get(dt: Dynatrace):
+    mw = await dt.maintenance_windows.get(mw_id=ID)
 
     # type checks
     assert isinstance(mw, MaintenanceWindow)
@@ -73,8 +74,8 @@ def test_get(dt: Dynatrace):
     assert mw.schedule.zone_id == "Europe/Vienna"
 
 
-def test_post(dt: Dynatrace):
-    response = dt.maintenance_windows.post(
+async def test_post(dt: Dynatrace):
+    response = await dt.maintenance_windows.post(
         MaintenanceWindow(
             raw_element={
                 "id": ID,

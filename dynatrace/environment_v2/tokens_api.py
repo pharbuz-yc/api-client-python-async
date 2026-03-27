@@ -17,7 +17,7 @@ limitations under the License.
 import builtins
 from datetime import datetime
 
-from requests import Response
+from httpx import Response
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -114,7 +114,7 @@ class TokenService:
     def __init__(self, http_client: HttpClient):
         self.__http_client = http_client
 
-    def list(
+    async def list(
         self,
         api_token_selector: str | None = None,
         fields: str | None = None,
@@ -131,32 +131,32 @@ class TokenService:
             "sort": sort,
         }
 
-        return PaginatedList(
+        return await PaginatedList(
             ApiToken,
             self.__http_client,
             "/api/v2/apiTokens",
             params,
             list_item="apiTokens",
-        )
+        ).initialize()
 
-    def get(self, token_id: str):
-        response = self.__http_client.make_request(
+    async def get(self, token_id: str):
+        response = await self.__http_client.make_request(
             f"/api/v2/apiTokens/{token_id}", method="GET"
         )
         return ApiToken(raw_element=response.json())
 
-    def put(self, token_id: str, api_token: "ApiTokenUpdate"):
-        response = self.__http_client.make_request(
+    async def put(self, token_id: str, api_token: "ApiTokenUpdate"):
+        response = await self.__http_client.make_request(
             f"/api/v2/apiTokens/{token_id}", method="PUT", params=api_token.json()
         )
         return response
 
-    def delete(self, token_id: str) -> Response:
-        return self.__http_client.make_request(
+    async def delete(self, token_id: str) -> Response:
+        return await self.__http_client.make_request(
             f"/api/v2/apiTokens/{token_id}", method="DELETE"
         )
 
-    def create(
+    async def create(
         self,
         name: str,
         scopes: builtins.list[str],
@@ -171,13 +171,13 @@ class TokenService:
             "scopes": scopes,
         }
 
-        response = self.__http_client.make_request(
+        response = await self.__http_client.make_request(
             "/api/v2/apiTokens", method="POST", params=body
         )
         return ApiTokenCreated(raw_element=response.json())
 
-    def lookup(self, token: str):
-        response = self.__http_client.make_request(
+    async def lookup(self, token: str):
+        response = await self.__http_client.make_request(
             "/api/v2/apiTokens/lookup", method="POST", params={"token": token}
         )
         return ApiToken(raw_element=response.json())
@@ -202,8 +202,8 @@ class ApiToken(DynatraceObject):
         self.scopes: list[str] = raw_element.get("scopes", [])
         self.enabled: bool = raw_element.get("enabled")
 
-    def delete(self):
-        return self._http_client.make_request(
+    async def delete(self):
+        return await self._http_client.make_request(
             f"/api/v2/apiTokens/{self.id}", method="DELETE"
         )
 
