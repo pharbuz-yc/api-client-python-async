@@ -1,9 +1,8 @@
 import hashlib
+import json
 import os
 from pathlib import Path
-from typing import Optional, Dict
 from unittest import mock
-import json
 
 import pytest
 
@@ -25,7 +24,14 @@ class MockResponse:
 
 
 def local_make_request(
-    self, path: str, params: Optional[Dict] = None, headers: Optional[Dict] = None, method="GET", data=None, query_params=None, **kwargs
+    self,
+    path: str,
+    params: dict | None = None,
+    headers: dict | None = None,
+    method="GET",
+    data=None,
+    query_params=None,
+    **kwargs,
 ) -> MockResponse:
 
     params = f"{params}" if params else ""

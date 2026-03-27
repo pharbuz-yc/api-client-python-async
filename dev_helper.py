@@ -44,14 +44,20 @@ def setup_log():
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
     st = logging.StreamHandler()
-    fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(thread)d - %(filename)s:%(lineno)d - %(message)s")
+    fmt = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(name)s - %(thread)d - %(filename)s:%(lineno)d - %(message)s"
+    )
     st.setFormatter(fmt)
     log.addHandler(st)
     return log
 
 
 def main():
-    dt = Dynatrace(os.getenv("DYNATRACE_TENANT_URL"), os.getenv("DYNATRACE_API_TOKEN"), log=setup_log())
+    dt = Dynatrace(
+        os.getenv("DYNATRACE_TENANT_URL"),
+        os.getenv("DYNATRACE_API_TOKEN"),
+        log=setup_log(),
+    )
 
     # TODO - Code here as you add new endpoints, during development
     # Any requests are going to be recorded in the `test/mock` folder and can later be used to write tests.

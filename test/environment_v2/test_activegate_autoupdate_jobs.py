@@ -1,5 +1,6 @@
-from dynatrace import Dynatrace
 from datetime import datetime
+
+from dynatrace import Dynatrace
 
 
 def test_list(dt: Dynatrace):

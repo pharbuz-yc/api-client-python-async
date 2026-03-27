@@ -1,6 +1,14 @@
 from dynatrace import Dynatrace
-from dynatrace.configuration_v1.oneagent_in_a_hostgroup import OneAgentHostGroupConfig, HostGroupAutoUpdateConfig
-from dynatrace.configuration_v1.schemas import UpdateWindowsConfig, UpdateWindow, ConfigurationMetadata, EffectiveSetting, AutoUpdateSetting
+from dynatrace.configuration_v1.oneagent_in_a_hostgroup import (
+    HostGroupAutoUpdateConfig,
+    OneAgentHostGroupConfig,
+)
+from dynatrace.configuration_v1.schemas import (
+    AutoUpdateSetting,
+    ConfigurationMetadata,
+    EffectiveSetting,
+    UpdateWindowsConfig,
+)
 
 HOST_GROUP_ID = "HOST_GROUP-ABC123DEF456GHI7"
 CLUSTER_VERSION = "1.222.47.20210712-162143"
@@ -15,11 +23,13 @@ def test_get(dt: Dynatrace):
     assert isinstance(oa_hostgroup_config.auto_update_config, HostGroupAutoUpdateConfig)
 
     # value checks
-    assert oa_hostgroup_config.id == None
+    assert oa_hostgroup_config.id is None
 
 
 def test_get_audoupdate(dt: Dynatrace):
-    oa_hostgroup_autoupdate = dt.oneagents_config_hostgroup.get_autoupdate(HOST_GROUP_ID)
+    oa_hostgroup_autoupdate = dt.oneagents_config_hostgroup.get_autoupdate(
+        HOST_GROUP_ID
+    )
 
     # type checks
     assert isinstance(oa_hostgroup_autoupdate, HostGroupAutoUpdateConfig)
@@ -27,7 +37,9 @@ def test_get_audoupdate(dt: Dynatrace):
     assert isinstance(oa_hostgroup_autoupdate.metadata, ConfigurationMetadata)
     assert isinstance(oa_hostgroup_autoupdate.setting, AutoUpdateSetting)
     assert isinstance(oa_hostgroup_autoupdate.update_windows, UpdateWindowsConfig)
-    assert isinstance(oa_hostgroup_autoupdate.effective_setting, (EffectiveSetting, type(None)))
+    assert isinstance(
+        oa_hostgroup_autoupdate.effective_setting, (EffectiveSetting, type(None))
+    )
     assert isinstance(oa_hostgroup_autoupdate.version, (str, type(None)))
     assert isinstance(oa_hostgroup_autoupdate.effective_version, (str, type(None)))
 

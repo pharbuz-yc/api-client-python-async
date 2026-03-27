@@ -1,14 +1,21 @@
 from dynatrace import Dynatrace
 from dynatrace.configuration_v1.oneagent_on_a_host import (
-    HostConfig,
-    HostAutoUpdateConfig,
-    MonitoringConfig,
     AutoUpdateSetting,
-    TechMonitoringList,
     EffectiveSetting,
+    HostAutoUpdateConfig,
+    HostConfig,
+    MonitoringConfig,
     MonitoringMode,
+    TechMonitoringList,
 )
-from dynatrace.configuration_v1.schemas import UpdateWindowsConfig, UpdateWindow, ConfigurationMetadata, Technology, TechnologyType, SettingScope
+from dynatrace.configuration_v1.schemas import (
+    ConfigurationMetadata,
+    SettingScope,
+    Technology,
+    TechnologyType,
+    UpdateWindow,
+    UpdateWindowsConfig,
+)
 
 HOST_ID = "HOST-abcd123457"
 CLUSTER_VERSION = "1.222.47.20210712-162143"
@@ -40,7 +47,9 @@ def test_get_autoupdate(dt: Dynatrace):
     assert isinstance(oa_autoupdate.effective_version, (str, type(None)))
     assert isinstance(oa_autoupdate.update_windows, UpdateWindowsConfig)
     assert isinstance(oa_autoupdate.metadata, ConfigurationMetadata)
-    assert all(isinstance(uw, UpdateWindow) for uw in oa_autoupdate.update_windows.windows)
+    assert all(
+        isinstance(uw, UpdateWindow) for uw in oa_autoupdate.update_windows.windows
+    )
 
     # value checks
     assert oa_autoupdate.id == HOST_ID
@@ -64,7 +73,7 @@ def test_get_monitoring(dt: Dynatrace):
 
     # value checks
     assert oa_monitoring.id == HOST_ID
-    assert oa_monitoring.monitoring_enabled == True
+    assert oa_monitoring.monitoring_enabled
     assert oa_monitoring.monitoring_mode == MonitoringMode.FULL_STACK
     assert oa_monitoring.metadata.cluster_version == CLUSTER_VERSION
 
@@ -84,6 +93,6 @@ def test_get_technologies(dt: Dynatrace):
     # value checks
     assert len(oa_technologies.technologies) == 4
     assert oa_technologies.technologies[0].type == TechnologyType.LOG_ANALYTICS
-    assert oa_technologies.technologies[0].monitoring_enabled == True
+    assert oa_technologies.technologies[0].monitoring_enabled
     assert oa_technologies.technologies[0].scope == SettingScope.ENVIRONMENT
     assert oa_technologies.metadata.cluster_version == CLUSTER_VERSION

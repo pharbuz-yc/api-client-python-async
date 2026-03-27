@@ -24,4 +24,6 @@ class ClusterTimeService:
         self.__http_client = http_client
 
     def time(self) -> datetime:
-        return datetime.utcfromtimestamp(float(self.__http_client.make_request("/api/v1/time").text) / 1000)
+        return datetime.utcfromtimestamp(
+            float(self.__http_client.make_request("/api/v1/time").text) / 1000
+        )

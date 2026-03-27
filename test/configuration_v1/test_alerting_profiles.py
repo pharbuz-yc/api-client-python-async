@@ -1,20 +1,23 @@
 from dynatrace import Dynatrace
 from dynatrace.configuration_v1.alerting_profiles import (
-    AlertingProfileStub,
-    AlertingProfile,
-    AlertingProfileSeverityRule,
-    SeverityLevel,
-    AlertingProfileTagFilter,
-    TagFilterIncludeMode,
-    AlertingPredefinedEventFilter,
-    AlertingEventTypeFilter,
     AlertingCustomEventFilter,
     AlertingCustomTextFilter,
+    AlertingEventTypeFilter,
     AlertingPredefinedEvent,
+    AlertingPredefinedEventFilter,
+    AlertingProfile,
+    AlertingProfileSeverityRule,
+    AlertingProfileStub,
+    AlertingProfileTagFilter,
+    SeverityLevel,
+    TagFilterIncludeMode,
 )
-from dynatrace.configuration_v1.schemas import ConfigurationMetadata, StringComparisonOperator
-from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
+from dynatrace.configuration_v1.schemas import (
+    ConfigurationMetadata,
+    StringComparisonOperator,
+)
 from dynatrace.environment_v2.custom_tags import METag
+from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
 from dynatrace.pagination import PaginatedList
 
 ID = "b1f379d9-98b4-4efe-be38-0289609c9295"
@@ -71,16 +74,27 @@ def test_get(dt: Dynatrace):
     first_event = ap.event_type_filters[0]
     assert isinstance(first_event, AlertingEventTypeFilter)
     assert isinstance(first_event.custom_event_filter, AlertingCustomEventFilter)
-    assert isinstance(first_event.custom_event_filter.custom_title_filter, AlertingCustomTextFilter)
+    assert isinstance(
+        first_event.custom_event_filter.custom_title_filter, AlertingCustomTextFilter
+    )
     assert isinstance(first_event.custom_event_filter.custom_title_filter.enabled, bool)
     assert isinstance(first_event.custom_event_filter.custom_title_filter.value, str)
-    assert isinstance(first_event.custom_event_filter.custom_title_filter.operator, StringComparisonOperator)
+    assert isinstance(
+        first_event.custom_event_filter.custom_title_filter.operator,
+        StringComparisonOperator,
+    )
     assert isinstance(first_event.custom_event_filter.custom_title_filter.negate, bool)
-    assert isinstance(first_event.custom_event_filter.custom_title_filter.case_insensitive, bool)
+    assert isinstance(
+        first_event.custom_event_filter.custom_title_filter.case_insensitive, bool
+    )
     second_event = ap.event_type_filters[1]
     assert isinstance(second_event, AlertingEventTypeFilter)
-    assert isinstance(second_event.predefined_event_filter, AlertingPredefinedEventFilter)
-    assert isinstance(second_event.predefined_event_filter.event_type, AlertingPredefinedEvent)
+    assert isinstance(
+        second_event.predefined_event_filter, AlertingPredefinedEventFilter
+    )
+    assert isinstance(
+        second_event.predefined_event_filter.event_type, AlertingPredefinedEvent
+    )
     assert isinstance(second_event.predefined_event_filter.negate, bool)
 
     # value checks
@@ -91,15 +105,17 @@ def test_get(dt: Dynatrace):
     assert rule.tag_filter.include_mode == TagFilterIncludeMode.INCLUDE_ANY
     assert rule.delay_in_minutes == 25
     assert ap.management_zone_id == "-6238974133282121422"
-    custom_event_filter = ap.event_type_filters[0].custom_event_filter.custom_title_filter
+    custom_event_filter = ap.event_type_filters[
+        0
+    ].custom_event_filter.custom_title_filter
     predef_event_filter = ap.event_type_filters[1].predefined_event_filter
-    assert custom_event_filter.enabled == True
+    assert custom_event_filter.enabled
     assert custom_event_filter.value == "ERROR"
     assert custom_event_filter.operator == StringComparisonOperator.CONTAINS
-    assert custom_event_filter.negate == False
-    assert custom_event_filter.case_insensitive == False
+    assert not custom_event_filter.negate
+    assert not custom_event_filter.case_insensitive
     assert predef_event_filter.event_type == AlertingPredefinedEvent.OSI_HIGH_CPU
-    assert predef_event_filter.negate == False
+    assert not predef_event_filter.negate
 
 
 def test_post(dt: Dynatrace):
@@ -112,7 +128,16 @@ def test_post(dt: Dynatrace):
                 "rules": [
                     {
                         "severityLevel": "PERFORMANCE",
-                        "tagFilter": {"includeMode": "INCLUDE_ANY", "tagFilters": [{"context": "CONTEXTLESS", "key": "Application", "value": "Custom"}]},
+                        "tagFilter": {
+                            "includeMode": "INCLUDE_ANY",
+                            "tagFilters": [
+                                {
+                                    "context": "CONTEXTLESS",
+                                    "key": "Application",
+                                    "value": "Custom",
+                                }
+                            ],
+                        },
                         "delayInMinutes": 25,
                     }
                 ],

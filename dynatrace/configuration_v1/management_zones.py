@@ -14,20 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import List, Dict, Any
 from enum import Enum
+from typing import Any
 
-from dynatrace.environment_v2.schemas import ConfigurationMetadata
-from dynatrace.dynatrace_object import DynatraceObject
-from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
-from dynatrace.http_client import HttpClient
-from dynatrace.pagination import PaginatedList
 from dynatrace.configuration_v1.auto_tags import (
     ComparisonBasicType,
     ConditionKeyAttribute,
     ConditionKeyType,
     PropagationType,
 )
+from dynatrace.dynatrace_object import DynatraceObject
+from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
+from dynatrace.environment_v2.schemas import ConfigurationMetadata
+from dynatrace.http_client import HttpClient
+from dynatrace.pagination import PaginatedList
 
 
 class RuleType(Enum):
@@ -116,7 +116,7 @@ class ManagementZoneService:
 
 
 class ComparisonBasic(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.operator: str = raw_element.get("operator")
         self.value: dict = raw_element.get("value")
         self.negate: bool = raw_element.get("negate")
@@ -125,7 +125,7 @@ class ComparisonBasic(DynatraceObject):
 
 
 class ConditionKey(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.attribute: ConditionKeyAttribute = ConditionKeyAttribute(
             raw_element.get("attribute")
         )
@@ -133,7 +133,7 @@ class ConditionKey(DynatraceObject):
 
 
 class EntityRuleEngineCondition(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.key: ConditionKey = ConditionKey(raw_element=raw_element.get("key"))
         self.comparison_info: ComparisonBasic = ComparisonBasic(
             raw_element=raw_element.get("comparisonInfo")
@@ -141,39 +141,39 @@ class EntityRuleEngineCondition(DynatraceObject):
 
 
 class EntitySelectorBasedManagementZoneRule(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.enabled: bool = raw_element.get("enabled")
         self.entity_selector: str = raw_element.get("entitySelector")
         self.value_format: str = raw_element.get("valueFormat")
 
 
 class ManagementZoneRule(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.type: RuleType = RuleType(raw_element.get("type"))
         self.enabled: bool = raw_element.get("enabled")
         self.value_format: str = raw_element.get("valueFormat")
-        self.propagation_types: List[PropagationType] = [
+        self.propagation_types: list[PropagationType] = [
             PropagationType(prop_type)
             for prop_type in (raw_element.get("propagationTypes") or [])
         ]
-        self.conditions: List[EntityRuleEngineCondition] = [
+        self.conditions: list[EntityRuleEngineCondition] = [
             EntityRuleEngineCondition(raw_element=condition)
             for condition in (raw_element.get("conditions") or [])
         ]
 
 
 class ManagementZone(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.metadata: ConfigurationMetadata = ConfigurationMetadata(
             self._http_client, None, raw_element.get("metadata")
         )
         self.id: str = raw_element.get("id")
         self.name: str = raw_element.get("name")
         self.description: str = raw_element.get("description")
-        self.rules: List[ManagementZoneRule] = [
+        self.rules: list[ManagementZoneRule] = [
             ManagementZoneRule(raw_element=rule) for rule in raw_element.get("rules")
         ]
-        self.entity_selector_based_rules: List[
+        self.entity_selector_based_rules: list[
             EntitySelectorBasedManagementZoneRule
         ] = [
             EntitySelectorBasedManagementZoneRule(raw_element=rule)

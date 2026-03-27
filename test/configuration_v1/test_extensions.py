@@ -2,14 +2,14 @@ from datetime import datetime
 
 from dynatrace import Dynatrace
 from dynatrace.configuration_v1.extensions import (
-    ExtensionDto,
-    ExtensionType,
     Extension,
+    ExtensionConfigurationDto,
+    ExtensionDto,
     ExtensionProperty,
-    GlobalExtensionConfiguration,
     ExtensionState,
     ExtensionStateEnum,
-    ExtensionConfigurationDto,
+    ExtensionType,
+    GlobalExtensionConfiguration,
 )
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
 from dynatrace.pagination import PaginatedList
@@ -74,7 +74,9 @@ def test_get_state(dt: Dynatrace):
 
 
 def test_get_instance_configuration(dt: Dynatrace):
-    config = dt.extensions.get_instance_configuration("custom.remote.python.salesforce_eventstream", "5649014104314746667")
+    config = dt.extensions.get_instance_configuration(
+        "custom.remote.python.salesforce_eventstream", "5649014104314746667"
+    )
     assert isinstance(config, ExtensionConfigurationDto)
 
     # TODO - This is a bug on Dynatrace, watch for the fix, this is the configuration ID
@@ -85,7 +87,10 @@ def test_get_instance_configuration(dt: Dynatrace):
     assert config.active_gate.name == "arch-david"
     assert config.endpoint_id == "5649014104314746667"
     assert config.endpoint_name == "curious-hawk"
-    assert config.properties["openkit_application_id"] == "87eee414-9338-446b-988b-bbdbf495c4f4"
+    assert (
+        config.properties["openkit_application_id"]
+        == "87eee414-9338-446b-988b-bbdbf495c4f4"
+    )
 
 
 def test_list_activegate_extension_modules(dt: Dynatrace):

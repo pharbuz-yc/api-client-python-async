@@ -1,5 +1,9 @@
 from dynatrace import Dynatrace
-from dynatrace.configuration_v1.notifications import NotificationConfigStub, NotificationType, ServiceNowNotificationConfig
+from dynatrace.configuration_v1.notifications import (
+    NotificationConfigStub,
+    NotificationType,
+    ServiceNowNotificationConfig,
+)
 from dynatrace.pagination import PaginatedList
 
 ID = "0d06c889-4cea-4b45-aefa-a277790e784d"
@@ -47,9 +51,9 @@ def test_get_full_configuration(dt: Dynatrace):
     assert full.name == NAME
     assert full.type == TYPE
     assert full.alerting_profile == "7693d108-fda9-3529-8ca3-55e9269b6097"
-    assert full.active == True
+    assert full.active
     assert full.instance_name == "dev63549"
-    assert full.url == None
+    assert full.url is None
     assert full.message == "{State} {ProblemID} {ProblemImpact} {ProblemSeverity}"
-    assert full.send_incidents == True
-    assert full.send_events == False
+    assert full.send_incidents
+    assert not full.send_events

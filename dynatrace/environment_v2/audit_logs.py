@@ -16,7 +16,7 @@ limitations under the License.
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Union, Dict, Any, List
+from typing import Any
 
 from dynatrace.dynatrace_object import DynatraceObject
 from dynatrace.http_client import HttpClient
@@ -32,14 +32,23 @@ class AuditLogsService:
 
     def list(
         self,
-        log_filter: Optional[str] = None,
-        time_from: Optional[Union[datetime, str]] = None,
-        time_to: Optional[Union[datetime, str]] = None,
-        sort: Optional[str] = None,
+        log_filter: str | None = None,
+        time_from: datetime | str | None = None,
+        time_to: datetime | str | None = None,
+        sort: str | None = None,
     ) -> PaginatedList["AuditLogEntry"]:
-        params = {"filter": log_filter, "from": timestamp_to_string(time_from), "to": timestamp_to_string(time_to), "sort": sort}
+        params = {
+            "filter": log_filter,
+            "from": timestamp_to_string(time_from),
+            "to": timestamp_to_string(time_to),
+            "sort": sort,
+        }
         return PaginatedList(
-            target_class=AuditLogEntry, http_client=self.__http_client, target_url="/api/v2/auditlogs", target_params=params, list_item="auditLogs"
+            target_class=AuditLogEntry,
+            http_client=self.__http_client,
+            target_url="/api/v2/auditlogs",
+            target_params=params,
+            list_item="auditLogs",
         )
 
     def get(self, log_id: str) -> "AuditLogEntry":
@@ -75,17 +84,19 @@ class UserType(Enum):
 
 
 class AuditLogEntry(DynatraceObject):
-    def _create_from_raw_data(self, raw_element: Dict[str, Any]):
+    def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.category: str = raw_element.get("category")
         self.environment_id: str = raw_element.get("environmentId")
         self.event_type: EventType = EventType(raw_element.get("eventType"))
         self.log_id: str = raw_element.get("logId")
         self.success: bool = raw_element.get("success")
-        self.timestamp: datetime = datetime.utcfromtimestamp(raw_element.get("timestamp") / 1000)
+        self.timestamp: datetime = datetime.utcfromtimestamp(
+            raw_element.get("timestamp") / 1000
+        )
         self.user: str = raw_element.get("user")
         self.user_type: UserType = UserType(raw_element.get("userType"))
 
-        self.entity_id: Optional[str] = raw_element.get("entityId")
-        self.user_origin: Optional[str] = raw_element.get("userOrigin")
-        self.message: Optional[str] = raw_element.get("message")
-        self.patch: Optional[List[Dict[str, Any]]] = raw_element.get("patch")
+        self.entity_id: str | None = raw_element.get("entityId")
+        self.user_origin: str | None = raw_element.get("userOrigin")
+        self.message: str | None = raw_element.get("message")
+        self.patch: list[dict[str, Any]] | None = raw_element.get("patch")

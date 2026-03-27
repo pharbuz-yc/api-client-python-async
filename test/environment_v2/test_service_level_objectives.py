@@ -1,5 +1,10 @@
 from dynatrace import Dynatrace
-from dynatrace.environment_v2.service_level_objectives import Slo, SloStatus, SloError, SloEvaluationType
+from dynatrace.environment_v2.service_level_objectives import (
+    Slo,
+    SloError,
+    SloEvaluationType,
+    SloStatus,
+)
 from dynatrace.pagination import PaginatedList
 
 SLO_ID = "88991da4-be17-3d57-aada-cfb3977767f4"
@@ -40,7 +45,7 @@ def test_get(dt: Dynatrace):
 
     # value checks
     assert slo.id == SLO_ID
-    assert slo.enabled == True
+    assert slo.enabled
     assert slo.name == "test123"
     assert slo.custom_description == "test"
     assert slo.evaluated_percentage == 100.0

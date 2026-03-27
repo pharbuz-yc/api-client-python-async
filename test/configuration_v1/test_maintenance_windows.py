@@ -1,17 +1,16 @@
 from dynatrace import Dynatrace
 from dynatrace.configuration_v1.maintenance_windows import (
-    MaintenanceWindowService,
-    TagCombination,
-    MonitoredEntityFilter,
-    Scope,
-    Recurrence,
-    Schedule,
     MaintenanceWindow,
     MaintenanceWindowStub,
+    MonitoredEntityFilter,
+    Recurrence,
+    Schedule,
+    Scope,
+    TagCombination,
 )
 from dynatrace.environment_v2.custom_tags import METag, TagContext
-from dynatrace.pagination import PaginatedList
 from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
+from dynatrace.pagination import PaginatedList
 
 ID = "b6376a12-0b82-4069-9a41-0e55ef9a1f44"
 NAME = "Example Window"
@@ -59,7 +58,7 @@ def test_get(dt: Dynatrace):
     assert mw.description == "An example Maintenance window"
     assert mw.type == "UNPLANNED"
     assert mw.suppression == "DETECT_PROBLEMS_AND_ALERT"
-    assert mw.suppress_synthetic_monitors_execution == True
+    assert mw.suppress_synthetic_monitors_execution
     assert mw.scope.entities[0] == "HOST-0000000000123456"
     assert mw.scope.matches[0].type == "HOST"
     assert mw.scope.matches[0].mz_id == "-5283929364044076484"
@@ -88,7 +87,12 @@ def test_post(dt: Dynatrace):
                     "end": "2031-02-27 00:00",
                     "start": "2028-08-02 00:00",
                     "zoneId": "Europe/Vienna",
-                    "recurrence": {"dayOfWeek": None, "dayOfMonth": None, "startTime": None, "durationMinutes": None},
+                    "recurrence": {
+                        "dayOfWeek": None,
+                        "dayOfMonth": None,
+                        "startTime": None,
+                        "durationMinutes": None,
+                    },
                     "recurrenceType": "ONCE",
                 },
                 "scope": {
@@ -97,7 +101,13 @@ def test_post(dt: Dynatrace):
                         {
                             "type": "HOST",
                             "mzId": "-5283929364044076484",
-                            "tags": [{"context": "AWS", "key": "testkey", "value": "testvalue"}],
+                            "tags": [
+                                {
+                                    "context": "AWS",
+                                    "key": "testkey",
+                                    "value": "testvalue",
+                                }
+                            ],
                             "tagCombination": "AND",
                         }
                     ],

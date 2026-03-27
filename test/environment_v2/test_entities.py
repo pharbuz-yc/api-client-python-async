@@ -1,26 +1,26 @@
 from datetime import datetime
 
 from dynatrace import Dynatrace
+from dynatrace.environment_v2.custom_tags import METag
 from dynatrace.environment_v2.monitored_entities import (
+    CustomDeviceCreation,
     Entity,
     EntityIcon,
-    ToPosition,
-    FromPosition,
     EntityType,
     EntityTypePropertyDto,
+    FromPosition,
     MessageType,
-    CustomDeviceCreation,
+    ToPosition,
 )
 from dynatrace.environment_v2.schemas import ManagementZone
-from dynatrace.environment_v2.custom_tags import METag
-
 from dynatrace.pagination import PaginatedList
 from dynatrace.utils import int64_to_datetime
 
 
 def test_list(dt: Dynatrace):
     entities = dt.entities.list(
-        'type("HOST")', fields="+fromRelationships,+toRelationships,+icon,+properties,+tags,+managementZones,+firstSeenTms,+lastSeenTms"
+        'type("HOST")',
+        fields="+fromRelationships,+toRelationships,+icon,+properties,+tags,+managementZones,+firstSeenTms,+lastSeenTms",
     )
     entities_list = list(entities)
 
@@ -66,7 +66,10 @@ def test_get(dt: Dynatrace):
     assert len(entity.management_zones) == 1
     assert entity.management_zones[0].id == "MANAGEMENT-ZONE-8E2ED64F4F19AC15"
     assert entity.icon.primary_icon_type == "linux"
-    assert entity.from_relationships["isHostOfContainer"][0].id == "DOCKER_CONTAINER_GROUP_INSTANCE-8E2ED6F4E2AFDD89"
+    assert (
+        entity.from_relationships["isHostOfContainer"][0].id
+        == "DOCKER_CONTAINER_GROUP_INSTANCE-8E2ED6F4E2AFDD89"
+    )
     assert entity.to_relationships["runsOn"][0].id == "PROCESS_GROUP-3AD9FB79C914520C"
 
 
@@ -115,7 +118,7 @@ def test_get_types(dt: Dynatrace):
     assert entity_type.type == "DISK"
     assert entity_type.display_name == "Disk"
     assert entity_type.dimension_key == "dt.entity.disk"
-    assert entity_type.entity_limit_exceeded == False
+    assert not entity_type.entity_limit_exceeded
     assert entity_type.properties[0].id == "awsNameTag"
     assert entity_type.properties[0].type == "String"
     assert entity_type.properties[0].display_name == "awsNameTag"

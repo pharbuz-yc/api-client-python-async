@@ -1,13 +1,15 @@
 from dynatrace import Dynatrace
-from dynatrace.configuration_v1.oneagent_environment_wide_configuration import EnvironmentAutoUpdateConfig
+from dynatrace.configuration_v1.oneagent_environment_wide_configuration import (
+    EnvironmentAutoUpdateConfig,
+)
 from dynatrace.configuration_v1.schemas import (
-    ConfigurationMetadata,
     AutoUpdateSetting,
-    UpdateWindowsConfig,
+    ConfigurationMetadata,
+    SettingScope,
     TechMonitoringList,
     Technology,
     TechnologyType,
-    SettingScope,
+    UpdateWindowsConfig,
 )
 
 CLUSTER_VERSION = "1.222.47.20210712-162143"
@@ -46,5 +48,5 @@ def test_get_technologies(dt: Dynatrace):
     assert oa_env_technologies.metadata.cluster_version == CLUSTER_VERSION
     assert len(oa_env_technologies.technologies) == 4
     assert oa_env_technologies.technologies[0].type == TechnologyType.DOT_NET
-    assert oa_env_technologies.technologies[0].monitoring_enabled == True
+    assert oa_env_technologies.technologies[0].monitoring_enabled
     assert oa_env_technologies.technologies[0].scope == SettingScope.ENVIRONMENT

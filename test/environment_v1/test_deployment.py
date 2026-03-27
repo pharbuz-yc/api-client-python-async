@@ -1,21 +1,22 @@
 from dynatrace import Dynatrace
 from dynatrace.environment_v1.deployment import (
-    InstallerMetaInfoDto,
-    ConnectionInfo,
+    ActiveGateConnectionInfo,
+    ActiveGateInstallerVersions,
     AgentInstallerVersions,
     BoshReleaseAvailableVersions,
-    ActiveGateInstallerVersions,
-    ActiveGateConnectionInfo,
     BoshReleaseChecksum,
+    ConnectionInfo,
+    InstallerMetaInfoDto,
     LatestLambdaLayerNames,
 )
-
 
 VERSION = "1.215.159.20210428-145534"
 
 
 def test_get_agent_installer_latest_metainfo(dt: Dynatrace):
-    metainfo = dt.deployment.get_agent_installer_latest_metainfo(os_type="unix", installer_type="paas", flavor="musl", arch="x86", bitness="64")
+    metainfo = dt.deployment.get_agent_installer_latest_metainfo(
+        os_type="unix", installer_type="paas", flavor="musl", arch="x86", bitness="64"
+    )
 
     # type checks
     assert isinstance(metainfo, InstallerMetaInfoDto)
@@ -40,12 +41,19 @@ def test_get_agent_installer_connection_info(dt: Dynatrace):
     assert info.tenant_uuid == "abc12345"
     assert info.tenant_token == "4BcD3fGh1JkLmN0p"
     assert len(info.communication_endpoints) == 4
-    assert info.communication_endpoints[0] == "https://host.docker.internal:9999/communication"
-    assert info.formatted_communication_endpoints.startswith("{https://host.docker.internal:9999/communication")
+    assert (
+        info.communication_endpoints[0]
+        == "https://host.docker.internal:9999/communication"
+    )
+    assert info.formatted_communication_endpoints.startswith(
+        "{https://host.docker.internal:9999/communication"
+    )
 
 
 def test_list_agent_installer_versions(dt: Dynatrace):
-    versions = dt.deployment.list_agent_installer_versions(os_type="unix", installer_type="paas", flavor="musl", arch="x86")
+    versions = dt.deployment.list_agent_installer_versions(
+        os_type="unix", installer_type="paas", flavor="musl", arch="x86"
+    )
 
     # type checks
     assert isinstance(versions, AgentInstallerVersions)
@@ -99,14 +107,19 @@ def test_list_boshrelease_agent_versions(dt: Dynatrace):
 
 
 def test_get_boshrelease_agent_checksum(dt: Dynatrace):
-    checksum = dt.deployment.get_boshrelease_agent_checksum(os_type="unix", version=VERSION)
+    checksum = dt.deployment.get_boshrelease_agent_checksum(
+        os_type="unix", version=VERSION
+    )
 
     # type checks
     assert isinstance(checksum, BoshReleaseChecksum)
     assert isinstance(checksum.sha_256, str)
 
     # value checks
-    assert checksum.sha_256 == "8747793999922D34666A26F48C2061E598B164159015D12103A5D55A4F05225C"
+    assert (
+        checksum.sha_256
+        == "8747793999922D34666A26F48C2061E598B164159015D12103A5D55A4F05225C"
+    )
 
 
 def test_get_lambda_agent_versions(dt: Dynatrace):

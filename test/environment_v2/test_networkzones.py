@@ -1,8 +1,6 @@
-from datetime import datetime
+import dynatrace.environment_v2.networkzones as nz
 from dynatrace import Dynatrace
 from dynatrace.pagination import PaginatedList
-
-import dynatrace.environment_v2.networkzones as nz
 
 NETWORKZONE_ID = "default"
 

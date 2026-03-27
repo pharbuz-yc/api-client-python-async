@@ -1,19 +1,29 @@
 from datetime import datetime
 
 from dynatrace import Dynatrace
+from dynatrace.environment_v2.custom_tags import METag
+from dynatrace.environment_v2.events import (
+    Event,
+    EventProperty,
+    EventSeverity,
+    EventStatus,
+    EventType,
+)
+from dynatrace.environment_v2.monitored_entities import EntityStub
+from dynatrace.environment_v2.schemas import ManagementZone
 from dynatrace.pagination import PaginatedList
 from dynatrace.utils import int64_to_datetime
-from dynatrace.environment_v2.events import Event, EventProperty, EventStatus, EventType, EventSeverity
-from dynatrace.environment_v2.monitored_entities import EntityStub
-from dynatrace.environment_v2.custom_tags import METag
-from dynatrace.environment_v2.schemas import ManagementZone
 
 EVENT_ID = "4578933396576863909_1631255744265"
 EVENT_TYPE = "APPLICATION_OVERLOAD_PREVENTION"
 
 
 def test_list(dt: Dynatrace):
-    events = dt.events_v2.list(page_size=100, time_from=datetime.utcfromtimestamp(1599913748), time_to="1631258989895")
+    events = dt.events_v2.list(
+        page_size=100,
+        time_from=datetime.utcfromtimestamp(1599913748),
+        time_to="1631258989895",
+    )
 
     # type checks
     assert isinstance(events, PaginatedList)
@@ -54,10 +64,10 @@ def test_get(dt: Dynatrace):
     assert event.properties[0].key == "dt.event.group_label"
     assert event.properties[0].value == "Deployment"
     assert event.status == EventStatus.CLOSED
-    assert event.under_maintenance == False
-    assert event.suppress_alert == False
-    assert event.suppress_problem == False
-    assert event.frequent_event == False
+    assert not event.under_maintenance
+    assert not event.suppress_alert
+    assert not event.suppress_problem
+    assert not event.frequent_event
 
 
 def test_list_types(dt: Dynatrace):
@@ -87,7 +97,13 @@ def test_get_type(dt: Dynatrace):
     assert type_details.severity_level == EventSeverity.INFO
     assert type_details.description == "Max user actions per minute exceeded"
 
+
 def test_ingest(dt: Dynatrace):
-    ingest = dt.events_v2.ingest("CUSTOM_ALERT", "Dt API Test", properties={"test": "test"}, entity_selector="type(HOST)")
+    ingest = dt.events_v2.ingest(
+        "CUSTOM_ALERT",
+        "Dt API Test",
+        properties={"test": "test"},
+        entity_selector="type(HOST)",
+    )
     assert isinstance(ingest, dict)
     assert ingest["eventIngestResults"][0]["status"] == "OK"

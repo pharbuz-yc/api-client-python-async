@@ -1,8 +1,6 @@
+import dynatrace.environment_v2.extensions as extensions_v2
 from dynatrace import Dynatrace
 from dynatrace.environment_v2.extensions import MinimalExtension
-from dynatrace.pagination import PaginatedList
-
-import dynatrace.environment_v2.extensions as extensions_v2
 
 
 def test_list(dt: Dynatrace):
@@ -30,7 +28,9 @@ def test_list_name(dt: Dynatrace):
 
 
 def test_list_versions(dt: Dynatrace):
-    extensions = list(dt.extensions_v2.list_versions("com.dynatrace.extension.snmp-generic"))
+    extensions = list(
+        dt.extensions_v2.list_versions("com.dynatrace.extension.snmp-generic")
+    )
 
     assert len(extensions) == 1
 
@@ -62,7 +62,9 @@ def test_get_active_extension_version(dt: Dynatrace):
     environemnt_config = dt.extensions_v2.get_environment_config("ibmmq")
 
     # type checks
-    assert isinstance(environemnt_config, extensions_v2.ExtensionEnvironmentConfigurationVersion)
+    assert isinstance(
+        environemnt_config, extensions_v2.ExtensionEnvironmentConfigurationVersion
+    )
 
     # value checks
     assert environemnt_config.version == "1.2.3"

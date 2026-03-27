@@ -1,7 +1,10 @@
 from dynatrace import Dynatrace
-from dynatrace.environment_v1.smartscape_hosts import Host, MonitoringMode, OSArchitecture
+from dynatrace.environment_v1.smartscape_hosts import (
+    Host,
+    MonitoringMode,
+    OSArchitecture,
+)
 from dynatrace.pagination import HeaderPaginatedList
-from dynatrace.environment_v1.smartscape_hosts import Host
 
 
 def test_list(dt: Dynatrace):

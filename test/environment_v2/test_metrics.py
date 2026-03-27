@@ -1,7 +1,11 @@
 from dynatrace import Dynatrace
-import pytest
-
-from dynatrace.environment_v2.metrics import MetricDescriptor, AggregationType, Transformation, ValueType, MetricSeriesCollection
+from dynatrace.environment_v2.metrics import (
+    AggregationType,
+    MetricDescriptor,
+    MetricSeriesCollection,
+    Transformation,
+    ValueType,
+)
 from dynatrace.pagination import PaginatedList
 from dynatrace.utils import int64_to_datetime
 
@@ -34,7 +38,10 @@ def test_list_fields(dt: Dynatrace):
         assert metric.created is None
         assert metric.last_written == int64_to_datetime(1620514220905)
         assert metric.entity_type == ["CUSTOM_APPLICATION", "MOBILE_APPLICATION"]
-        assert metric.aggregation_types == [AggregationType.AUTO, AggregationType.AUTO.VALUE]
+        assert metric.aggregation_types == [
+            AggregationType.AUTO,
+            AggregationType.AUTO.VALUE,
+        ]
         assert Transformation.FOLD in metric.transformations
         assert metric.default_aggregation.type == "value"
         assert len(metric.dimension_definitions) == 3
@@ -91,7 +98,9 @@ def test_query(dt: Dynatrace):
     time_from = int64_to_datetime(1621020000000)
     time_to = int64_to_datetime(1621025000000)
 
-    results = dt.metrics.query("builtin:host.cpu.idle", time_from=time_from, time_to=time_to)
+    results = dt.metrics.query(
+        "builtin:host.cpu.idle", time_from=time_from, time_to=time_to
+    )
     assert isinstance(results, PaginatedList)
 
     print("Asserting first element")

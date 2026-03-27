@@ -15,11 +15,12 @@ limitations under the License.
 """
 
 from requests import Response
-from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
+
 from dynatrace.configuration_v1.endpoint import EndpointShortRepresentation
+from dynatrace.dynatrace_object import DynatraceObject
+from dynatrace.environment_v2.monitored_entities import EntityShortRepresentation
 from dynatrace.http_client import HttpClient
 from dynatrace.pagination import PaginatedList
-from dynatrace.dynatrace_object import DynatraceObject
 
 
 class PluginService:
@@ -30,20 +31,32 @@ class PluginService:
         """
         List all uploaded plugins
         """
-        return PaginatedList(PluginShortRepresentation, self.__http_client, "/api/config/v1/plugins", list_item="values")
+        return PaginatedList(
+            PluginShortRepresentation,
+            self.__http_client,
+            "/api/config/v1/plugins",
+            list_item="values",
+        )
 
     def list_states(self, plugin_id) -> PaginatedList["PluginState"]:
         """
         List the states of the specified plugin
         """
-        return PaginatedList(PluginState, self.__http_client, f"/api/config/v1/plugins/{plugin_id}/states", list_item="states")
+        return PaginatedList(
+            PluginState,
+            self.__http_client,
+            f"/api/config/v1/plugins/{plugin_id}/states",
+            list_item="states",
+        )
 
     def delete(self, plugin_id) -> Response:
         """
         Deletes the ZIP file of the specified plugin
         :param plugin_id: The ID of the plugin to be deleted
         """
-        return self.__http_client.make_request(f"/api/config/v1/plugins/{plugin_id}/binary", method="DELETE")
+        return self.__http_client.make_request(
+            f"/api/config/v1/plugins/{plugin_id}/binary", method="DELETE"
+        )
 
 
 class PluginState(DynatraceObject):
@@ -63,7 +76,9 @@ class PluginShortRepresentation(EntityShortRepresentation):
         """
         Deletes the ZIP file of this plugin
         """
-        return self._http_client.make_request(f"/api/config/v1/plugins/{self.id}/binary", method="DELETE")
+        return self._http_client.make_request(
+            f"/api/config/v1/plugins/{self.id}/binary", method="DELETE"
+        )
 
     @property
     def endpoints(self) -> PaginatedList[EndpointShortRepresentation]:
@@ -77,4 +92,10 @@ class PluginShortRepresentation(EntityShortRepresentation):
 
     @property
     def states(self) -> PaginatedList[PluginState]:
-        return PaginatedList(PluginState, self._http_client, f"/api/config/v1/plugins/{self.id}/states", None, list_item="states")
+        return PaginatedList(
+            PluginState,
+            self._http_client,
+            f"/api/config/v1/plugins/{self.id}/states",
+            None,
+            list_item="states",
+        )
