@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v1.smartscape_hosts import (
     Host,
     MonitoringMode,
@@ -7,7 +7,7 @@ from dynatrace.environment_v1.smartscape_hosts import (
 from dynatrace.pagination import HeaderPaginatedList
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     hosts = await dt.smartscape_hosts.list(page_size=20)
     assert isinstance(hosts, HeaderPaginatedList)
     async for host in hosts:

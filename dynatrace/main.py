@@ -77,7 +77,7 @@ from dynatrace.environment_v2.tokens_tenant import TenantTokenService
 from dynatrace.http_client import HttpClient
 
 
-class Dynatrace:
+class DynatraceAsync:
     def __init__(
         self,
         client_id: str,
@@ -213,7 +213,7 @@ class Dynatrace:
     async def aclose(self) -> None:
         await self.__http_client.aclose()
 
-    async def __aenter__(self) -> "Dynatrace":
+    async def __aenter__(self) -> "DynatraceAsync":
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:

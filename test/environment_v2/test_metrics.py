@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.metrics import (
     AggregationType,
     MetricDescriptor,
@@ -11,7 +11,7 @@ from dynatrace.utils import int64_to_datetime
 from test.async_utils import first
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     metrics = await dt.metrics.list()
     assert isinstance(metrics, PaginatedList)
     metric = await first(metrics)
@@ -22,7 +22,7 @@ async def test_list(dt: Dynatrace):
     assert metric.unit == "NotApplicable"
 
 
-async def test_list_fields(dt: Dynatrace):
+async def test_list_fields(dt: DynatraceAsync):
     metrics = await dt.metrics.list(
         fields="+tags,+dduBillable,+created,+lastWritten,+aggregationTypes,+defaultAggregation,+dimensionDefinitions,+transformations,+entityType"
     )
@@ -51,7 +51,7 @@ async def test_list_fields(dt: Dynatrace):
     assert metric.dimension_definitions[0].type == "ENTITY"
 
 
-async def test_list_params(dt: Dynatrace):
+async def test_list_params(dt: DynatraceAsync):
 
     written_since = int64_to_datetime(1621029621)
 
@@ -75,7 +75,7 @@ async def test_list_params(dt: Dynatrace):
     assert metric.dimension_definitions[0].key == "dt.entity.host"
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
 
     metric = await dt.metrics.get("builtin:host.cpu.idle")
 
@@ -92,7 +92,7 @@ async def test_get(dt: Dynatrace):
     assert metric.metric_value_type.type == ValueType.SCORE
 
 
-async def test_query(dt: Dynatrace):
+async def test_query(dt: DynatraceAsync):
     time_from = int64_to_datetime(1621020000000)
     time_to = int64_to_datetime(1621025000000)
 
@@ -117,7 +117,7 @@ async def test_query(dt: Dynatrace):
     assert first_data.timestamps[0] == int64_to_datetime(3151435100000)
 
 
-async def test_ingest(dt: Dynatrace):
+async def test_ingest(dt: DynatraceAsync):
     ingest = await dt.metrics.ingest(["a 1", "b 2"])
     assert isinstance(ingest, dict)
     assert ingest["linesOk"] == 1

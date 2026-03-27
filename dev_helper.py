@@ -12,7 +12,7 @@ from pathlib import Path
 
 import wrapt
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.utils import slugify
 
 
@@ -54,7 +54,7 @@ def setup_log():
 
 
 async def main():
-    async with Dynatrace(
+    async with DynatraceAsync(
         client_id=os.getenv("DYNATRACE_OAUTH_CLIENT_ID"),
         client_secret=os.getenv("DYNATRACE_OAUTH_CLIENT_SECRET"),
         account_uuid=os.getenv("DYNATRACE_ACCOUNT_UUID"),

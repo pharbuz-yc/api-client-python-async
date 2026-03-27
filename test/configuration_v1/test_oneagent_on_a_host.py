@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.oneagent_on_a_host import (
     AutoUpdateSetting,
     EffectiveSetting,
@@ -21,7 +21,7 @@ HOST_ID = "HOST-abcd123457"
 CLUSTER_VERSION = "1.222.47.20210712-162143"
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     oa_host_config = await dt.oneagents_config_host.get(HOST_ID)
 
     # type checks
@@ -35,7 +35,7 @@ async def test_get(dt: Dynatrace):
     assert oa_host_config.id == HOST_ID
 
 
-async def test_get_autoupdate(dt: Dynatrace):
+async def test_get_autoupdate(dt: DynatraceAsync):
     oa_autoupdate = await dt.oneagents_config_host.get_autoupdate(HOST_ID)
 
     # type checks
@@ -61,7 +61,7 @@ async def test_get_autoupdate(dt: Dynatrace):
     assert oa_autoupdate.metadata.cluster_version == CLUSTER_VERSION
 
 
-async def test_get_monitoring(dt: Dynatrace):
+async def test_get_monitoring(dt: DynatraceAsync):
     oa_monitoring = await dt.oneagents_config_host.get_monitoring(HOST_ID)
 
     # type checks
@@ -78,7 +78,7 @@ async def test_get_monitoring(dt: Dynatrace):
     assert oa_monitoring.metadata.cluster_version == CLUSTER_VERSION
 
 
-async def test_get_technologies(dt: Dynatrace):
+async def test_get_technologies(dt: DynatraceAsync):
     oa_technologies = await dt.oneagents_config_host.get_technologies(HOST_ID)
 
     # type checks

@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.auto_tags import (
     AutoTag,
     AutoTagRule,
@@ -14,7 +14,7 @@ from dynatrace.environment_v2.schemas import ConfigurationMetadata
 from dynatrace.pagination import PaginatedList
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     tags = await dt.auto_tags.list()
     assert isinstance(tags, PaginatedList)
 
@@ -25,7 +25,7 @@ async def test_list(dt: Dynatrace):
         break
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     tags = await dt.auto_tags.list()
     async for tag in tags:
         full_tag = await tag.get_full_configuration()

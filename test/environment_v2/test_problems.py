@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import dynatrace.environment_v2.problems as pb
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.alerting_profiles import AlertingProfileStub
 from dynatrace.environment_v2.custom_tags import METag
 from dynatrace.environment_v2.monitored_entities import EntityId, EntityStub
@@ -14,7 +14,7 @@ PROBLEM_ID = "-1719139739592062093_1623004451641V2"
 COMMENT_ID = "-7228967546616810529_1623004451641"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     problems = await dt.problems.list(time_from="now-3d")
 
     assert isinstance(problems, PaginatedList)
@@ -23,7 +23,7 @@ async def test_list(dt: Dynatrace):
     assert all(isinstance(p, pb.Problem) for p in problem_list)
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     problem = await dt.problems.get(problem_id=PROBLEM_ID)
 
     # type checks
@@ -100,7 +100,7 @@ async def test_get(dt: Dynatrace):
     assert len(problem.recent_comments.comments) == 2
 
 
-async def test_close(dt: Dynatrace):
+async def test_close(dt: DynatraceAsync):
     close_result = await dt.problems.close(
         problem_id=PROBLEM_ID, message="Closing this. 1234"
     )
@@ -122,7 +122,7 @@ async def test_close(dt: Dynatrace):
     assert close_result.closing
 
 
-async def test_list_comments(dt: Dynatrace):
+async def test_list_comments(dt: DynatraceAsync):
     comments = await dt.problems.list_comments(problem_id=PROBLEM_ID, page_size=20)
 
     assert isinstance(comments, PaginatedList)
@@ -131,7 +131,7 @@ async def test_list_comments(dt: Dynatrace):
     assert all(isinstance(c, pb.Comment) for c in comment_list)
 
 
-async def test_get_comment(dt: Dynatrace):
+async def test_get_comment(dt: DynatraceAsync):
     comment = await dt.problems.get_comment(
         problem_id=PROBLEM_ID, comment_id=COMMENT_ID
     )

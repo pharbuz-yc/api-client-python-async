@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.remote_configuration import (
     AttributeType,
     EntityType,
@@ -12,7 +12,7 @@ from dynatrace.pagination import PaginatedList
 TEST_ENTITY_ID = "0x2b7c0b02"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     jobs = await dt.oneagents_remote_configuration.list()
 
     assert isinstance(jobs, PaginatedList)
@@ -26,7 +26,7 @@ async def test_list(dt: Dynatrace):
         break
 
 
-async def test_post(dt: Dynatrace):
+async def test_post(dt: DynatraceAsync):
     operation = RemoteConfigurationManagementOperation.build(
         attribute=AttributeType.NETWORK_ZONE,
         operation=OperationType.SET,
@@ -46,7 +46,7 @@ async def test_post(dt: Dynatrace):
     assert job.operations[0].value == "test-zone"
 
 
-async def test_get_current(dt: Dynatrace):
+async def test_get_current(dt: DynatraceAsync):
     current_job = await dt.oneagents_remote_configuration.get_current()
 
     if current_job is not None:
@@ -55,7 +55,7 @@ async def test_get_current(dt: Dynatrace):
         assert current_job.processed_entities_count <= current_job.total_entities_count
 
 
-async def test_post_preview(dt: Dynatrace):
+async def test_post_preview(dt: DynatraceAsync):
     operation = RemoteConfigurationManagementOperation.build(
         attribute=AttributeType.NETWORK_ZONE,
         operation=OperationType.SET,
@@ -78,7 +78,7 @@ async def test_post_preview(dt: Dynatrace):
         break
 
 
-async def test_validate(dt: Dynatrace):
+async def test_validate(dt: DynatraceAsync):
     operation = RemoteConfigurationManagementOperation.build(
         attribute=AttributeType.NETWORK_ZONE,
         operation=OperationType.SET,
@@ -98,7 +98,7 @@ async def test_validate(dt: Dynatrace):
         assert isinstance(validation_result.invalid_operations, list)
 
 
-async def test_get_job(dt: Dynatrace):
+async def test_get_job(dt: DynatraceAsync):
     ID = "7974003406714390819"
     job = await dt.oneagents_remote_configuration.get(ID)
 

@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.custom_tags import AddEntityTags, METag
 from dynatrace.pagination import PaginatedList
 from test.async_utils import collect
@@ -6,7 +6,7 @@ from test.async_utils import collect
 ENTITY_SELECTOR = "bilalhosts"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     _tags = await dt.custom_tags.list(entity_selector=ENTITY_SELECTOR)
 
     # type checks
@@ -23,7 +23,7 @@ async def test_list(dt: Dynatrace):
         break
 
 
-async def test_post_no_value(dt: Dynatrace):
+async def test_post_no_value(dt: DynatraceAsync):
     tags = await dt.custom_tags.post(
         "entityId(CUSTOM_DEVICE-3B7788FE910B0F42)", [AddEntityTags("test-tag-no-value")]
     )
@@ -34,7 +34,7 @@ async def test_post_no_value(dt: Dynatrace):
         assert tag.string_representation == "test-tag-no-value"
 
 
-async def test_post_value(dt: Dynatrace):
+async def test_post_value(dt: DynatraceAsync):
     tags = await dt.custom_tags.post(
         "entityId(CUSTOM_DEVICE-3B7788FE910B0F42)",
         [AddEntityTags("test-tag-value", "tag-value")],
@@ -46,7 +46,7 @@ async def test_post_value(dt: Dynatrace):
         assert tag.string_representation == "test-tag-value:tag-value"
 
 
-async def test_delete(dt: Dynatrace):
+async def test_delete(dt: DynatraceAsync):
     deleted_tags = await dt.custom_tags.delete(
         "test-tag-value",
         "entityId(CUSTOM_DEVICE-3B7788FE910B0F42)",

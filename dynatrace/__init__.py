@@ -1,4 +1,4 @@
 from dynatrace.http_client import TOO_MANY_REQUESTS_WAIT
-from dynatrace.main import Dynatrace as Dynatrace
+from dynatrace.main import DynatraceAsync
 
-__all__ = ["Dynatrace", "TOO_MANY_REQUESTS_WAIT"]
+__all__ = ["DynatraceAsync", "TOO_MANY_REQUESTS_WAIT"]

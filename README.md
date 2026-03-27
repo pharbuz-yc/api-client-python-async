@@ -15,7 +15,7 @@ $ pip install dt-async
 
 This library uses OAuth 2.0 client credentials flow for authentication.
 
-When creating `Dynatrace(...)`, you must provide:
+When creating `DynatraceAsync(...)`, you must provide:
 - `client_id`
 - `client_secret`
 - `account_uuid`
@@ -29,7 +29,7 @@ The `scope` value must include the permissions required by the APIs you want to 
 import asyncio
 from datetime import datetime, timedelta
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace import TOO_MANY_REQUESTS_WAIT
 from dynatrace.configuration_v1.credential_vault import PublicCertificateCredentials
 from dynatrace.environment_v2.settings import SettingsObjectCreate
@@ -40,14 +40,14 @@ from dynatrace.environment_v2.tokens_api import (
 
 async def main():
     # Create a Dynatrace client
-    async with Dynatrace(
+    async with DynatraceAsync(
         client_id="oauth_client_id",
         client_secret="oauth_client_secret",
         account_uuid="your-account-uuid",
         base_url="environment_url",
     ) as dt:
         # Create a client that handles too many requests (429)
-        # dt = Dynatrace(
+        # dt = DynatraceAsync(
         #     client_id="oauth_client_id",
         #     client_secret="oauth_client_secret",
         #     account_uuid="your-account-uuid",
@@ -56,7 +56,7 @@ async def main():
         # )
 
         # Create a client that automatically retries on errors, up to 5 times, with a 1 second delay between retries
-        # dt = Dynatrace(
+        # dt = DynatraceAsync(
         #     client_id="oauth_client_id",
         #     client_secret="oauth_client_secret",
         #     account_uuid="your-account-uuid",
@@ -66,7 +66,7 @@ async def main():
         # )
 
         # Create a client with a custom HTTP timeout of 10 seconds
-        # dt = Dynatrace(
+        # dt = DynatraceAsync(
         #     client_id="oauth_client_id",
         #     client_secret="oauth_client_secret",
         #     account_uuid="your-account-uuid",

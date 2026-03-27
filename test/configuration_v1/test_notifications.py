@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.notifications import (
     NotificationConfigStub,
     NotificationType,
@@ -12,7 +12,7 @@ NAME = "Service Now Example"
 TYPE = NotificationType.SERVICE_NOW
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     notifications = await dt.notifications.list()
     assert isinstance(notifications, PaginatedList)
 
@@ -27,7 +27,7 @@ async def test_list(dt: Dynatrace):
     assert first.type == TYPE
 
 
-async def test_get_full_configuration(dt: Dynatrace):
+async def test_get_full_configuration(dt: DynatraceAsync):
     notifications = await dt.notifications.list()
     list_notifications = await collect(notifications)
     first = list_notifications[0]

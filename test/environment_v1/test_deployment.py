@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v1.deployment import (
     ActiveGateConnectionInfo,
     ActiveGateInstallerVersions,
@@ -13,7 +13,7 @@ from dynatrace.environment_v1.deployment import (
 VERSION = "1.215.159.20210428-145534"
 
 
-async def test_get_agent_installer_latest_metainfo(dt: Dynatrace):
+async def test_get_agent_installer_latest_metainfo(dt: DynatraceAsync):
     metainfo = await dt.deployment.get_agent_installer_latest_metainfo(
         os_type="unix", installer_type="paas", flavor="musl", arch="x86", bitness="64"
     )
@@ -26,7 +26,7 @@ async def test_get_agent_installer_latest_metainfo(dt: Dynatrace):
     assert metainfo.latest_agent_version == VERSION
 
 
-async def test_get_agent_installer_connection_info(dt: Dynatrace):
+async def test_get_agent_installer_connection_info(dt: DynatraceAsync):
     info = await dt.deployment.get_agent_installer_connection_info(version=VERSION)
 
     # type checks
@@ -50,7 +50,7 @@ async def test_get_agent_installer_connection_info(dt: Dynatrace):
     )
 
 
-async def test_list_agent_installer_versions(dt: Dynatrace):
+async def test_list_agent_installer_versions(dt: DynatraceAsync):
     versions = await dt.deployment.list_agent_installer_versions(
         os_type="unix", installer_type="paas", flavor="musl", arch="x86"
     )
@@ -65,7 +65,7 @@ async def test_list_agent_installer_versions(dt: Dynatrace):
     assert versions.available_versions[0] == VERSION
 
 
-async def test_get_gateway_installer_connection_info(dt: Dynatrace):
+async def test_get_gateway_installer_connection_info(dt: DynatraceAsync):
     info = await dt.deployment.get_gateway_installer_connection_info()
 
     # type checks
@@ -80,7 +80,7 @@ async def test_get_gateway_installer_connection_info(dt: Dynatrace):
     assert info.communication_endpoints.startswith("https://sg-eu-west-1234.domain.com")
 
 
-async def test_list_gateway_installer_versions(dt: Dynatrace):
+async def test_list_gateway_installer_versions(dt: DynatraceAsync):
     versions = await dt.deployment.list_gateway_installer_versions(os_type="unix")
 
     # type checks
@@ -93,7 +93,7 @@ async def test_list_gateway_installer_versions(dt: Dynatrace):
     assert versions.available_versions[0] == VERSION
 
 
-async def test_list_boshrelease_agent_versions(dt: Dynatrace):
+async def test_list_boshrelease_agent_versions(dt: DynatraceAsync):
     versions = await dt.deployment.list_boshrelease_agent_versions(os_type="unix")
 
     # type checks
@@ -106,7 +106,7 @@ async def test_list_boshrelease_agent_versions(dt: Dynatrace):
     assert versions.available_versions[0] == VERSION
 
 
-async def test_get_boshrelease_agent_checksum(dt: Dynatrace):
+async def test_get_boshrelease_agent_checksum(dt: DynatraceAsync):
     checksum = await dt.deployment.get_boshrelease_agent_checksum(
         os_type="unix", version=VERSION
     )
@@ -122,7 +122,7 @@ async def test_get_boshrelease_agent_checksum(dt: Dynatrace):
     )
 
 
-async def test_get_lambda_agent_versions(dt: Dynatrace):
+async def test_get_lambda_agent_versions(dt: DynatraceAsync):
     versions = await dt.deployment.get_lambda_agent_versions()
 
     # type checks

@@ -78,7 +78,7 @@ Example:
 `ActiveGateService.list() -> Implements the /api/v2/activegates request`  
 `ActiveGateService.get(activegate_id: str) -> Implements the /api/v2/activegates/{activegate_id} request`
 
-Then, on `main.py` the `Dynatrace` class needs to expose this service for our users:
+Then, on `main.py` the `DynatraceAsync` class needs to expose this service for our users:
 
 `self.activegates: ActiveGateService = ActiveGateService(self.__http_client)`
 
@@ -122,13 +122,13 @@ You can also hardcode these values in your own local copy if you prefer, **just 
 Create a file called `test_{file_name}` in the appropriate folder under `test`, it follows the same structure as the `dynatrace` folder  
 The goal is to test that your code correctly parses the json responses, and create valid objects of the correct types.  
   
-Every test receives a `dt` fixture automatically, this is a Dynatrace instance that reads from `test/mock_data` instead of making http requests 
+Every test receives a `dt` fixture automatically, this is a DynatraceAsync instance that reads from `test/mock_data` instead of making http requests 
 
 
 Example for a test for the `list` method of `ActivegateService`:
 
 ```python
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     activegates = await dt.activegates.list()
     assert isinstance(activegates, PaginatedList)
 

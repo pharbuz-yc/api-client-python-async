@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.extensions import (
     Extension,
     ExtensionConfigurationDto,
@@ -16,7 +16,7 @@ from dynatrace.pagination import PaginatedList
 from test.async_utils import collect
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     extensions = await dt.extensions.list()
     assert isinstance(extensions, PaginatedList)
 
@@ -30,7 +30,7 @@ async def test_list(dt: Dynatrace):
     assert first.type == ExtensionType.ACTIVEGATE
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     extension = await dt.extensions.get("custom.python.citrixAgent")
     assert isinstance(extension, Extension)
     assert extension.id == "custom.python.citrixAgent"
@@ -46,7 +46,7 @@ async def test_get(dt: Dynatrace):
     assert first_property.type == "BOOLEAN"
 
 
-async def test_get_global_configuration(dt: Dynatrace):
+async def test_get_global_configuration(dt: DynatraceAsync):
     global_config = await dt.extensions.get_global_configuration(
         "custom.python.citrixAgent"
     )
@@ -57,7 +57,7 @@ async def test_get_global_configuration(dt: Dynatrace):
     assert global_config.properties["log_level"] == "INFO"
 
 
-async def test_get_state(dt: Dynatrace):
+async def test_get_state(dt: DynatraceAsync):
     states = await dt.extensions.list_states(
         "custom.remote.python.salesforce_eventstream"
     )
@@ -78,7 +78,7 @@ async def test_get_state(dt: Dynatrace):
     assert first.process_id is None
 
 
-async def test_get_instance_configuration(dt: Dynatrace):
+async def test_get_instance_configuration(dt: DynatraceAsync):
     config = await dt.extensions.get_instance_configuration(
         "custom.remote.python.salesforce_eventstream", "5649014104314746667"
     )
@@ -98,7 +98,7 @@ async def test_get_instance_configuration(dt: Dynatrace):
     )
 
 
-async def test_list_activegate_extension_modules(dt: Dynatrace):
+async def test_list_activegate_extension_modules(dt: DynatraceAsync):
     modules = await dt.extensions.list_activegate_extension_modules()
     assert isinstance(modules, PaginatedList)
 

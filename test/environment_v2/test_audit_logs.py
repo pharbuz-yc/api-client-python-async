@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.audit_logs import AuditLogEntry, EventType, UserType
 from dynatrace.pagination import PaginatedList
 from test.async_utils import collect
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     audit_logs = await dt.audit_logs.list()
     assert isinstance(audit_logs, PaginatedList)
 
@@ -30,7 +30,7 @@ async def test_list(dt: Dynatrace):
     assert first.success
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     audit_log = await dt.audit_logs.get("162100314800090003")
     assert isinstance(audit_log, AuditLogEntry)
     assert audit_log.log_id == "162100314800090003"

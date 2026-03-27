@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.settings import (
     SchemaStub,
     SettingsObject,
@@ -44,7 +44,7 @@ settings_object = SettingsObjectCreate(
 test_object_id = "vu9U3hXa3q0AAAABACdidWlsdGluOmFub21hbHktZGV0ZWN0aW9uLm1ldHJpYy1ldmVudHMABnRlbmFudAAGdGVuYW50ACRiYmYzZWNhNy0zMmZmLTM2ZTEtOTFiOS05Y2QxZjE3OTc0YjC-71TeFdrerQ"
 
 
-async def test_list_schemas(dt: Dynatrace):
+async def test_list_schemas(dt: DynatraceAsync):
     schemas = await dt.settings.list_schemas()
     assert isinstance(schemas, PaginatedList)
     schema_list = await collect(schemas)
@@ -52,7 +52,7 @@ async def test_list_schemas(dt: Dynatrace):
     assert all(isinstance(s, SchemaStub) for s in schema_list)
 
 
-async def test_list_objects(dt: Dynatrace):
+async def test_list_objects(dt: DynatraceAsync):
     settings = await dt.settings.list_objects(
         schema_id="builtin:anomaly-detection.metric-events"
     )
@@ -62,17 +62,17 @@ async def test_list_objects(dt: Dynatrace):
     assert all(isinstance(s, SettingsObject) for s in settings_list)
 
 
-async def test_get_object(dt: Dynatrace):
+async def test_get_object(dt: DynatraceAsync):
     setting = await dt.settings.get_object(object_id=test_object_id)
     assert isinstance(setting, SettingsObject)
     assert setting.schema_version == "1.0.16"
 
 
-async def test_post_object(dt: Dynatrace):
+async def test_post_object(dt: DynatraceAsync):
     response = await dt.settings.create_object(body=settings_object)
     assert response[0].get("code") == 200
 
 
-async def test_put_object(dt: Dynatrace):
+async def test_put_object(dt: DynatraceAsync):
     response = await dt.settings.update_object(test_object_id, settings_object)
     print(response)

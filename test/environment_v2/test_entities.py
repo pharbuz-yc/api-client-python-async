@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.custom_tags import METag
 from dynatrace.environment_v2.monitored_entities import (
     CustomDeviceCreation,
@@ -18,7 +18,7 @@ from dynatrace.utils import int64_to_datetime
 from test.async_utils import collect
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     entities = await dt.entities.list(
         'type("HOST")',
         fields="+fromRelationships,+toRelationships,+icon,+properties,+tags,+managementZones,+firstSeenTms,+lastSeenTms",
@@ -33,7 +33,7 @@ async def test_list(dt: Dynatrace):
     assert len(entities_list) == 1
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     entity = await dt.entities.get(
         "HOST-82F576674F19AC16",
         time_from=datetime.utcfromtimestamp(1618585701),
@@ -74,7 +74,7 @@ async def test_get(dt: Dynatrace):
     assert entity.to_relationships["runsOn"][0].id == "PROCESS_GROUP-3AD9FB79C914520C"
 
 
-async def test_list_types(dt: Dynatrace):
+async def test_list_types(dt: DynatraceAsync):
     entity_types = await dt.entities.list_types(page_size=3)
     entity_types_list = await collect(entity_types)
 
@@ -86,7 +86,7 @@ async def test_list_types(dt: Dynatrace):
     assert len(entity_types_list) == 2
 
 
-async def test_get_types(dt: Dynatrace):
+async def test_get_types(dt: DynatraceAsync):
     entity_type = await dt.entities.get_type(entity_type="DISK")
 
     # type checks
@@ -131,7 +131,7 @@ async def test_get_types(dt: Dynatrace):
     assert entity_type.to_relationships[0].from_types[0] == "EBS_VOLUME"
 
 
-async def test_create_custom_device(dt: Dynatrace):
+async def test_create_custom_device(dt: DynatraceAsync):
     device = dt.entities.create_custom_device(
         custom_device_id="device-one",
         display_name="Test Device",

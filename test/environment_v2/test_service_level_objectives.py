@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.service_level_objectives import (
     Slo,
     SloError,
@@ -11,7 +11,7 @@ from test.async_utils import collect
 SLO_ID = "88991da4-be17-3d57-aada-cfb3977767f4"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     slos = await dt.slos.list(enabled_slos="all")
 
     assert isinstance(slos, PaginatedList)
@@ -20,7 +20,7 @@ async def test_list(dt: Dynatrace):
     assert all(isinstance(s, Slo) for s in slo_list)
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     slo = await dt.slos.get(slo_id=SLO_ID)
 
     # type checks

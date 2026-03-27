@@ -1,8 +1,8 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.pagination import PaginatedList
 
 
-async def test_parse_multiple_date_formats(dt: Dynatrace):
+async def test_parse_multiple_date_formats(dt: DynatraceAsync):
     """
     The API can currently return two different date formats.
     If a token is created exactly at 0, then the millisecond portion is not returned by the API.

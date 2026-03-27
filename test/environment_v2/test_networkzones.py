@@ -1,12 +1,12 @@
 import dynatrace.environment_v2.networkzones as nz
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.pagination import PaginatedList
 from test.async_utils import collect
 
 NETWORKZONE_ID = "default"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     network_zones = await dt.network_zones.list()
 
     # type checks
@@ -16,7 +16,7 @@ async def test_list(dt: Dynatrace):
     assert all(isinstance(n, nz.NetworkZone) for n in zones)
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     network_zone = await dt.network_zones.get(networkzone_id=NETWORKZONE_ID)
 
     # type checks

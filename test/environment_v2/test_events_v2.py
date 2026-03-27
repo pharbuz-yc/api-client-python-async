@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.custom_tags import METag
 from dynatrace.environment_v2.events import (
     Event,
@@ -19,7 +19,7 @@ EVENT_ID = "4578933396576863909_1631255744265"
 EVENT_TYPE = "APPLICATION_OVERLOAD_PREVENTION"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     events = await dt.events_v2.list(
         page_size=100,
         time_from=datetime.utcfromtimestamp(1599913748),
@@ -35,7 +35,7 @@ async def test_list(dt: Dynatrace):
     assert len(event_list) == 3
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     event = await dt.events_v2.get(EVENT_ID)
 
     # type checks
@@ -72,7 +72,7 @@ async def test_get(dt: Dynatrace):
     assert not event.frequent_event
 
 
-async def test_list_types(dt: Dynatrace):
+async def test_list_types(dt: DynatraceAsync):
     event_types = await dt.events_v2.list_types()
 
     # type checks
@@ -84,7 +84,7 @@ async def test_list_types(dt: Dynatrace):
     assert len(event_type_list) == 5
 
 
-async def test_get_type(dt: Dynatrace):
+async def test_get_type(dt: DynatraceAsync):
     type_details = await dt.events_v2.get_type(EVENT_TYPE)
 
     # type checks
@@ -101,7 +101,7 @@ async def test_get_type(dt: Dynatrace):
     assert type_details.description == "Max user actions per minute exceeded"
 
 
-async def test_ingest(dt: Dynatrace):
+async def test_ingest(dt: DynatraceAsync):
     ingest = await dt.events_v2.ingest(
         "CUSTOM_ALERT",
         "Dt API Test",

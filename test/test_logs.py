@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.logs import EventType, LogRecord, LogRecordStatus
 from dynatrace.pagination import PaginatedList
 from test.async_utils import collect
 
 
-async def test_export(dt: Dynatrace):
+async def test_export(dt: DynatraceAsync):
     logs = await dt.logs.export(time_from="now-10m")
     assert isinstance(logs, PaginatedList)
 

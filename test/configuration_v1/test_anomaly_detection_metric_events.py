@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.metric_events import (
     AggregationType,
     DisabledReason,
@@ -20,7 +20,7 @@ BASELINE_ID = "d3baaaed-3441-4931-bf24-25c4e12e137f"
 BASELINE_NAME = "Mint alert for static"
 
 
-async def test_list(dt: Dynatrace):
+async def test_list(dt: DynatraceAsync):
     metric_events = await dt.anomaly_detection_metric_events.list()
     assert isinstance(metric_events, PaginatedList)
 
@@ -34,7 +34,7 @@ async def test_list(dt: Dynatrace):
     assert first.name == STATIC_NAME
 
 
-async def test_get_full_configuration(dt: Dynatrace):
+async def test_get_full_configuration(dt: DynatraceAsync):
     metric_events = await dt.anomaly_detection_metric_events.list()
     list_metric_events = await collect(metric_events)
 

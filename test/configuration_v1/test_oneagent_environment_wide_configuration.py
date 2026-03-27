@@ -1,4 +1,4 @@
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.configuration_v1.oneagent_environment_wide_configuration import (
     EnvironmentAutoUpdateConfig,
 )
@@ -15,7 +15,7 @@ from dynatrace.configuration_v1.schemas import (
 CLUSTER_VERSION = "1.222.47.20210712-162143"
 
 
-async def test_get(dt: Dynatrace):
+async def test_get(dt: DynatraceAsync):
     oa_env_autoupdate_config = await dt.oneagents_config_environment.get()
 
     # type checks
@@ -32,7 +32,7 @@ async def test_get(dt: Dynatrace):
     assert oa_env_autoupdate_config.update_windows.windows == []
 
 
-async def test_get_technologies(dt: Dynatrace):
+async def test_get_technologies(dt: DynatraceAsync):
     oa_env_technologies = await dt.oneagents_config_environment.get_technologies()
 
     # type checks
