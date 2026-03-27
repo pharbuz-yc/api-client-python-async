@@ -111,7 +111,9 @@ This makes it easier to write your tests, as you will generate mock data automat
 This script expects two environment variables to be set to work:
 
 * `DYNATRACE_TENANT_URL`
-* `DYNATRACE_API_TOKEN`
+* `DYNATRACE_OAUTH_CLIENT_ID`
+* `DYNATRACE_OAUTH_CLIENT_SECRET`
+* `DYNATRACE_ACCOUNT_UUID`
 
 You can also hardcode these values in your own local copy if you prefer, **just be sure NOT to commit this file to Github and expose your credentials**
 
@@ -126,11 +128,11 @@ Every test receives a `dt` fixture automatically, this is a Dynatrace instance t
 Example for a test for the `list` method of `ActivegateService`:
 
 ```python
-def test_list(dt: Dynatrace):
-    activegates = dt.activegates.list()
+async def test_list(dt: Dynatrace):
+    activegates = await dt.activegates.list()
     assert isinstance(activegates, PaginatedList)
 
-    for activegate in activegates:
+    async for activegate in activegates:
         assert isinstance(activegate, Activegate)
         assert activegate.id == "my_id"
         assert activegate.os_type == OSType.LINUX

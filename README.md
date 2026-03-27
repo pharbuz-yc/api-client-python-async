@@ -1,6 +1,6 @@
-# dt - Dynatrace Python API Client
+# dt-async - Dynatrace Python API Client
 
-**dt** is a Python client for the [Dynatrace Rest API].   
+**dt-async** is a Python client for the [Dynatrace Rest API].   
 It focuses on ease of use and nice type hints, perfect to explore the API and create quick scripts
 
 [Dynatrace Rest API]: https://www.dynatrace.com/support/help/dynatrace-api
@@ -8,8 +8,20 @@ It focuses on ease of use and nice type hints, perfect to explore the API and cr
 ## Install
 
 ```bash
-$ pip install dt
+$ pip install dt-async
 ```
+
+## Authentication
+
+This library uses OAuth 2.0 client credentials flow for authentication.
+
+When creating `Dynatrace(...)`, you must provide:
+- `client_id`
+- `client_secret`
+- `account_uuid`
+- `scope`
+
+The `scope` value must include the permissions required by the APIs you want to call. For example, if you want to read entities and metrics, pass the corresponding OAuth scopes in the constructor, for example `scope="environment-api:entities:read environment-api:metrics:read"`.
 
 ## Simple Demo
 
