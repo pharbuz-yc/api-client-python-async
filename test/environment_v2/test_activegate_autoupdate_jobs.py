@@ -1,9 +1,11 @@
-from dynatrace import Dynatrace
 from datetime import datetime
 
+from dynatrace import DynatraceAsync
+from test.async_utils import collect
 
-def test_list(dt: Dynatrace):
-    update_jobs = list(dt.activegates_autoupdate_jobs.list())
+
+async def test_list(dt: DynatraceAsync):
+    update_jobs = await collect(await dt.activegates_autoupdate_jobs.list())
     assert isinstance(update_jobs, list)
 
     first_ag = update_jobs[0]
@@ -25,8 +27,8 @@ def test_list(dt: Dynatrace):
     assert first_job.duration is None
 
 
-def test_get(dt: Dynatrace):
-    update_jobs_list = dt.activegates_autoupdate_jobs.get("-1556499193")
+async def test_get(dt: DynatraceAsync):
+    update_jobs_list = await dt.activegates_autoupdate_jobs.get("-1556499193")
 
     assert update_jobs_list.activegate_id == "-1556499193"
     assert isinstance(update_jobs_list.update_jobs, list)

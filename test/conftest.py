@@ -1,13 +1,12 @@
 import hashlib
+import json
 import os
 from pathlib import Path
-from typing import Optional, Dict
 from unittest import mock
-import json
 
 import pytest
 
-from dynatrace import Dynatrace
+from dynatrace import DynatraceAsync
 from dynatrace.http_client import HttpClient
 from dynatrace.utils import slugify
 
@@ -18,14 +17,23 @@ class MockResponse:
     def __init__(self, json_data):
         self.json_data = json_data
         self.headers = {}
-        self.content = json.dumps(json_data).encode() if json_data else None
+        self.text = json.dumps(json_data) if json_data is not None else ""
+        self.content = self.text.encode() if self.text else None
+        self.status_code = 200
 
     def json(self):
         return self.json_data
 
 
-def local_make_request(
-    self, path: str, params: Optional[Dict] = None, headers: Optional[Dict] = None, method="GET", data=None, query_params=None, **kwargs
+async def local_make_request(
+    self,
+    path: str,
+    params: dict | None = None,
+    headers: dict | None = None,
+    method="GET",
+    data=None,
+    query_params=None,
+    **kwargs,
 ) -> MockResponse:
 
     params = f"{params}" if params else ""
@@ -47,5 +55,10 @@ def local_make_request(
 @pytest.fixture(autouse=True)
 def dt():
     with mock.patch.object(HttpClient, "make_request", new=local_make_request):
-        dt = Dynatrace("mock_tenant", "mock_token")
+        dt = DynatraceAsync(
+            client_id="mock_client_id",
+            client_secret="mock_client_secret",
+            account_uuid="mock_account_uuid",
+            base_url="mock_tenant",
+        )
         yield dt

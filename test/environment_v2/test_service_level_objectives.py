@@ -1,20 +1,27 @@
-from dynatrace import Dynatrace
-from dynatrace.environment_v2.service_level_objectives import Slo, SloStatus, SloError, SloEvaluationType
+from dynatrace import DynatraceAsync
+from dynatrace.environment_v2.service_level_objectives import (
+    Slo,
+    SloError,
+    SloEvaluationType,
+    SloStatus,
+)
 from dynatrace.pagination import PaginatedList
+from test.async_utils import collect
 
 SLO_ID = "88991da4-be17-3d57-aada-cfb3977767f4"
 
 
-def test_list(dt: Dynatrace):
-    slos = dt.slos.list(enabled_slos="all")
+async def test_list(dt: DynatraceAsync):
+    slos = await dt.slos.list(enabled_slos="all")
 
     assert isinstance(slos, PaginatedList)
-    assert len(list(slos)) == 4
-    assert all(isinstance(s, Slo) for s in slos)
+    slo_list = await collect(slos)
+    assert len(slo_list) == 4
+    assert all(isinstance(s, Slo) for s in slo_list)
 
 
-def test_get(dt: Dynatrace):
-    slo = dt.slos.get(slo_id=SLO_ID)
+async def test_get(dt: DynatraceAsync):
+    slo = await dt.slos.get(slo_id=SLO_ID)
 
     # type checks
     assert isinstance(slo, Slo)
@@ -40,7 +47,7 @@ def test_get(dt: Dynatrace):
 
     # value checks
     assert slo.id == SLO_ID
-    assert slo.enabled == True
+    assert slo.enabled
     assert slo.name == "test123"
     assert slo.custom_description == "test"
     assert slo.evaluated_percentage == 100.0
