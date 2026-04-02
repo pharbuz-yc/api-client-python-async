@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.15"
+python = ">=3.12"
 authlib = ">=1.6.9"
 httpx = ">=0.28.1"
 
