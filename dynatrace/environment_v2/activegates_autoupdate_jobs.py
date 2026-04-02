@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -144,8 +144,9 @@ class UpdateJob(DynatraceObject):
         self.cancelable: bool = raw_element.get("cancelable")
         self.start_version: str = raw_element.get("startVersion")
         self.target_version: str = raw_element.get("targetVersion")
-        self.timestamp: datetime = datetime.utcfromtimestamp(
-            raw_element.get("timestamp") / 1000
+        self.timestamp: datetime = datetime.fromtimestamp(
+            raw_element.get("timestamp") / 1000,
+            UTC,
         )
         self.ag_type: str = raw_element.get("agType")
         self.environments: list[str] = raw_element.get("environments")

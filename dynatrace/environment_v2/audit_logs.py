@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -92,8 +92,9 @@ class AuditLogEntry(DynatraceObject):
         self.event_type: EventType = EventType(raw_element.get("eventType"))
         self.log_id: str = raw_element.get("logId")
         self.success: bool = raw_element.get("success")
-        self.timestamp: datetime = datetime.utcfromtimestamp(
-            raw_element.get("timestamp") / 1000
+        self.timestamp: datetime = datetime.fromtimestamp(
+            raw_element.get("timestamp") / 1000,
+            UTC,
         )
         self.user: str = raw_element.get("user")
         self.user_type: UserType = UserType(raw_element.get("userType"))

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -81,8 +81,9 @@ class LogRecord(DynatraceObject):
     def _create_from_raw_data(self, raw_element: dict[str, Any]):
         self.additional_columns: dict = raw_element.get("additionalColumns")
         self.event_type: EventType = EventType(raw_element.get("eventType"))
-        self.timestamp: datetime = datetime.utcfromtimestamp(
-            raw_element.get("timestamp") / 1000
+        self.timestamp: datetime = datetime.fromtimestamp(
+            raw_element.get("timestamp") / 1000,
+            UTC,
         )
         self.content: str = raw_element.get("content")
         self.status: LogRecordStatus = LogRecordStatus(raw_element.get("status"))

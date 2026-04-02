@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -355,6 +355,7 @@ class ExtensionState(DynatraceObject):
         self.state_description: str | None = raw_element.get("stateDescription")
         self.host_id: str | None = raw_element.get("hostId")
         self.process_id: str | None = raw_element.get("processId")
-        self.timestamp: datetime | None = datetime.utcfromtimestamp(
-            raw_element.get("timestamp") / 1000
+        self.timestamp: datetime | None = datetime.fromtimestamp(
+            raw_element.get("timestamp") / 1000,
+            UTC,
         )
