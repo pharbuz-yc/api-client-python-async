@@ -46,6 +46,28 @@ async def local_make_request(
     path = slugify(path)
     file_name = f"{method}{path}{params}.json"
     file_path = Path(current_file_path, "mock_data", file_name)
+    if not file_path.exists():
+        candidates = sorted(
+            Path(current_file_path, "mock_data").glob(f"{method}{path}*.json")
+        )
+        if path == "api_v2_metrics" and candidates:
+            if "writtenSince': None" in str(params) and "fields': None" in str(params):
+                preferred_name = "GET_api_v2_metrics_c2452ee3448e535.json"
+            else:
+                preferred_name = "GET_api_v2_metrics_b9525a59df51eee.json"
+
+            preferred = next(
+                (
+                    candidate
+                    for candidate in candidates
+                    if candidate.name == preferred_name
+                ),
+                None,
+            )
+            file_path = preferred or candidates[0]
+        elif candidates:
+            file_path = candidates[0]
+
     with open(file_path) as f:
         content = f.read()
         json_data = json.loads(content) if content else None

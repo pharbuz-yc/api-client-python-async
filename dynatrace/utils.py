@@ -51,7 +51,11 @@ def deprecated(reason=""):
 def timestamp_to_string(timestamp: datetime | str | None) -> str | None:
     if not isinstance(timestamp, datetime):
         return timestamp
-    return timestamp.isoformat(timespec="milliseconds")
+    return (
+        timestamp.astimezone(UTC)
+        .replace(tzinfo=None)
+        .isoformat(timespec="milliseconds")
+    )
 
 
 def iso8601_to_datetime(timestamp: str | None) -> datetime | None:
@@ -74,3 +78,23 @@ def datetime_to_int64(timestamp: datetime | None) -> int | None:
     if not isinstance(timestamp, datetime):
         return timestamp
     return int(timestamp.replace(tzinfo=UTC).timestamp() * 1000)
+
+
+def bool_header_value(value: bool | None) -> str | None:
+    if value is None:
+        return None
+    return "true" if value else "false"
+
+
+def build_headers(
+    dt_client_context: str | None = None,
+    enforce_query_consumption_limit_header: bool | None = None,
+) -> dict[str, str] | None:
+    headers: dict[str, str] = {}
+    if dt_client_context is not None:
+        headers["dt-client-context"] = dt_client_context
+    if enforce_query_consumption_limit_header is not None:
+        headers["enforce-query-consumption-limit"] = bool_header_value(
+            enforce_query_consumption_limit_header
+        )
+    return headers or None

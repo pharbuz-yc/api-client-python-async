@@ -16,6 +16,7 @@ limitations under the License.
 
 import logging
 
+from dynatrace.account.schemas import AccountAPI
 from dynatrace.configuration_v1.alerting_profiles import AlertingProfileService
 from dynatrace.configuration_v1.anomaly_detection_process_groups import (
     AnomalyDetectionPGService,
@@ -75,6 +76,7 @@ from dynatrace.environment_v2.settings import SettingService
 from dynatrace.environment_v2.tokens_api import TokenService
 from dynatrace.environment_v2.tokens_tenant import TenantTokenService
 from dynatrace.http_client import HttpClient
+from dynatrace.platform.schemas import PlatformAPI
 
 
 class DynatraceAsync:
@@ -206,6 +208,8 @@ class DynatraceAsync:
         self.timeseries: TimeSerieService = TimeSerieService(self.__http_client)
         self.tokens: TokenService = TokenService(self.__http_client)
         self.credentials = CredentialVaultService(self.__http_client)
+        self.platform: PlatformAPI = PlatformAPI(self.__http_client)
+        self.account: AccountAPI = AccountAPI(self.__http_client)
 
         # New implementations should be done here, above is deprecated
         self.config_v1: ConfigurationV1 = ConfigurationV1(self.__http_client)
