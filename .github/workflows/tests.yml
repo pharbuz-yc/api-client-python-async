@@ -18,7 +18,7 @@ jobs:
           - macos-latest
           - windows-latest
         # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-        python-version: [ '3.13' ]
+        python-version: [ '3.12', '3.13', '3.14' ]
 
     steps:
       - uses: actions/checkout@v4
