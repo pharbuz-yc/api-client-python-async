@@ -21,6 +21,7 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -31,7 +32,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.13,<3.15"
+python = ">=3.12"
 authlib = ">=1.6.9"
 httpx = ">=0.28.1"
 
@@ -54,7 +55,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py312"
 
 [tool.ruff.lint]
 ignore = ["E501", "UP046"]
