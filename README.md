@@ -312,3 +312,34 @@ asyncio.run(main())
  Service - IBM MQ tracing                            |        :x:         |                                       |
  Service - Request attributes                        |        :x:         |                                       |
  Service - Request naming                            |        :x:         |                                       |
+
+### Platform API
+
+ API                                  |       Level        | Access                                                                    |
+:-------------------------------------|:------------------:|:--------------------------------------------------------------------------|
+ Davis CoPilot API                    | :heavy_check_mark: | `dt.platform.davis_copilot`                                               |
+ Davis AI - Predictive and Causal     |     :warning:      | `dt.platform.davis_analyzers`                                             |
+ DQL Query                            | :heavy_check_mark: | `dt.platform.grail_query_execution`, `dt.platform.grail_query_assistance` |
+
+### Account API
+
+ API                                                        |       Level        | Access                               |
+:-----------------------------------------------------------|:------------------:|:-------------------------------------|
+ Account Management - Account limits                        |        :x:         |                                      |
+ Account Management - User management                       |        :x:         |                                      |
+ Account Management - Group management                      |        :x:         |                                      |
+ Account Management - Permission management                 |        :x:         |                                      |
+ Account Management - Policy management                     |        :x:         |                                      |
+ Account Management - Service user management               |        :x:         |                                      |
+ Account Management - Platform tokens                       |        :x:         |                                      |
+ Environment management API v1                              | :heavy_check_mark: | `dt.account.env_v1`                  |
+ Environment management API v2                              | :heavy_check_mark: | `dt.account.env_v2`                  |
+ Dynatrace Platform Subscription - Subscription management  | :heavy_check_mark: | `dt.account.sub_v2`                  |
+ Dynatrace Platform Subscription - Subscription environments v2 |        :x:         |                                      |
+ Dynatrace Platform Subscription - Subscription environments v3 | :heavy_check_mark: | `dt.account.sub_v3`                  |
+ Dynatrace Platform Subscription - Rate cards               | :heavy_check_mark: | `dt.account.sub_v1_rate_cards`       |
+ Dynatrace Platform Subscription - Cost allocation          | :heavy_check_mark: | `dt.account.sub_v1_cost_allocation`  |
+ Account Settings                                           |        :x:         |                                      |
+ Account Audits                                             |        :x:         |                                      |
+ Reference data                                             |        :x:         |                                      |
+ Notifications                                              |        :x:         |                                      |
