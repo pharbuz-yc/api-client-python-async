@@ -23,7 +23,6 @@ from dynatrace.configuration_v1.anomaly_detection_process_groups import (
 )
 from dynatrace.configuration_v1.api import ConfigurationV1
 from dynatrace.configuration_v1.auto_tags import AutoTagService
-from dynatrace.configuration_v1.credential_vault import CredentialVaultService
 from dynatrace.configuration_v1.dashboard import DashboardService
 from dynatrace.configuration_v1.extensions import ExtensionService
 from dynatrace.configuration_v1.maintenance_windows import MaintenanceWindowService
@@ -59,6 +58,7 @@ from dynatrace.environment_v2.activegates_autoupdate_jobs import (
     ActiveGateAutoUpdateJobsService,
 )
 from dynatrace.environment_v2.audit_logs import AuditLogsService
+from dynatrace.environment_v2.credential_vault import CredentialVaultService
 from dynatrace.environment_v2.custom_tags import CustomTagService
 from dynatrace.environment_v2.events import EventServiceV2
 from dynatrace.environment_v2.extensions import ExtensionsServiceV2

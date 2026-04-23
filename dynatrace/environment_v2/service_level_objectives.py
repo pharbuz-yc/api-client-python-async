@@ -42,8 +42,9 @@ class SloService:
         time_frame: str | None = "CURRENT",
         page_idx: int | None = 1,
         demo: bool | None = False,
-        evaluate: str | None = "false",
+        evaluate: bool | None = False,
         enabled_slos: str | None = "all",
+        show_global_slos: bool | None = None,
     ) -> PaginatedList["Slo"]:
         """Lists all available SLOs along with calculated values
 
@@ -55,8 +56,9 @@ class SloService:
         :param time_frame: The timeframe to calculate the SLO values. CURRENT: SLO's own timeframe. GTF: timeframe specified by from and to parameters.
         :param page_idx: Only SLOs on the given page are included in the response. The first page has the index '1'.
         :param demo: Get your SLOs (false) or a set of demo SLOs (true)
-        :param evaluate: Get your SLOs without them being evaluated ("false") or with evaluations ("true"). This value must be a lowercase string.
+        :param evaluate: Get your SLOs without them being evaluated (`False`) or with evaluations (`True`).
         :param enabled_slos: Get your enabled SLOs ("true"), disabled ones ("false") or both enabled and disabled ones ("all"). This value must be a lowercase string.
+        :param show_global_slos: Include global SLOs regardless of selected filter.
 
         :returns PaginatedList[Slo]: the list of SLOs matching criteria
         """
@@ -71,6 +73,7 @@ class SloService:
             "demo": demo,
             "evaluate": evaluate,
             "enabledSlos": enabled_slos,
+            "showGlobalSlos": show_global_slos,
         }
         return await PaginatedList(
             target_class=Slo,
@@ -218,6 +221,9 @@ class Slo(DynatraceObject):
         self.related_open_problems: int | None = raw_element.get(
             "relatedOpenProblems", 0
         )
+        self.related_total_problems: int | None = raw_element.get(
+            "relatedTotalProblems", 0
+        )
         self.evaluated_percentage: float | None = raw_element.get(
             "evaluatedPercentage", 0
         )
@@ -225,6 +231,9 @@ class Slo(DynatraceObject):
         self.enabled: bool | None = raw_element.get("enabled", False)
         self.custom_description: str | None = raw_element.get("description")
         self.error: SloError | None = SloError(raw_element.get("error", SloError.NONE))
+        self.error_budget_burn_rate: dict[str, Any] | None = raw_element.get(
+            "errorBudgetBurnRate"
+        )
         self.use_rate_metric: bool | None = raw_element.get("useRateMetric")
 
     def to_json(self) -> dict[str, Any]:
@@ -243,7 +252,8 @@ class Slo(DynatraceObject):
             "metricExpression": self.metric_expression,
             "metricName": self.metric_name,
             "filter": self.filter,
-            "customDescription": self.custom_description,
+            "description": self.custom_description,
+            "errorBudgetBurnRate": self.error_budget_burn_rate,
         }
 
     async def post(self) -> "Response":
