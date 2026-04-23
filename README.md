@@ -316,6 +316,8 @@ asyncio.run(main())
 
  API                                  |       Level        | Access                                                                    |
 :-------------------------------------|:------------------:|:--------------------------------------------------------------------------|
+ AppEngine - Registry - Apps          | :heavy_check_mark: | `dt.platform.appengine_registry`                                          |
+ AppEngine - Registry - Schema Manifest | :heavy_check_mark: | `dt.platform.appengine_registry`                                        |
  Davis CoPilot API                    | :heavy_check_mark: | `dt.platform.davis_copilot`                                               |
  Davis AI - Predictive and Causal     |     :warning:      | `dt.platform.davis_analyzers`                                             |
  DQL Query                            | :heavy_check_mark: | `dt.platform.grail_query_execution`, `dt.platform.grail_query_assistance` |
