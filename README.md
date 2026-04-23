@@ -33,7 +33,7 @@ from datetime import datetime, timedelta
 
 from dynatrace import DynatraceAsync
 from dynatrace import TOO_MANY_REQUESTS_WAIT
-from dynatrace.configuration_v1.credential_vault import PublicCertificateCredentials
+from dynatrace.environment_v2.credential_vault import PublicCertificateCredentials
 from dynatrace.environment_v2.settings import SettingsObjectCreate
 from dynatrace.environment_v2.tokens_api import (
     SCOPE_METRICS_INGEST,
@@ -140,12 +140,11 @@ async def main():
 
         my_cred = PublicCertificateCredentials(
             name="my_cred",
+            scopes=["EXTENSION"],
             description="my_cred description",
-            scope="EXTENSION",
             owner_access_only=False,
             certificate=ca_cert,
             password="",
-            credential_type="PUBLIC_CERTIFICATE",
             certificate_format="PEM",
         )
 
@@ -221,6 +220,7 @@ asyncio.run(main())
  Security problems                       |        :x:         |                                           |
  Service-level objectives                | :heavy_check_mark: | `dt.slos`                                 |
  Settings                                |     :warning:      | `dt.settings`                             | 
+ Credential vault                        | :heavy_check_mark: | `dt.credentials`                          |
 
 ### Environment API V1
 
@@ -278,7 +278,6 @@ asyncio.run(main())
  Calculated metrics - Web applications               |        :x:         |                                       |
  Cloud Foundry credentials configuration             |        :x:         |                                       |
  Conditional naming                                  |        :x:         |                                       |
- Credential vault                                    |        :x:         |                                       |
  Custom tags                                         | :heavy_check_mark: | `dt.custom_tags`                      |
  Dashboards                                          |     :warning:      | `dt.dashboards`                       |
  Data privacy and security                           |        :x:         |                                       |
