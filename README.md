@@ -217,7 +217,7 @@ asyncio.run(main())
  Network zones                           |     :warning:      | `dt.network_zones`                        |
  OneAgents - Remote configuration        | :heavy_check_mark: | `dt.oneagents_remote_configuration`       |
  Problems                                | :heavy_check_mark: | `dt.problems`                             |
- Security problems                       |        :x:         |                                           |
+ Security problems                       | :heavy_check_mark: | `dt.security_problems`                    |
  Service-level objectives                | :heavy_check_mark: | `dt.slos`                                 |
  Settings                                |     :warning:      | `dt.settings`                             | 
  Credential vault                        | :heavy_check_mark: | `dt.credentials`                          |

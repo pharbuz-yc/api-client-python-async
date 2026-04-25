@@ -71,6 +71,7 @@ from dynatrace.environment_v2.remote_configuration import (
     ActiveGatesRemoteConfigurationService,
     OneAgentsRemoteConfigurationService,
 )
+from dynatrace.environment_v2.security_problems import SecurityProblemService
 from dynatrace.environment_v2.service_level_objectives import SloService
 from dynatrace.environment_v2.settings import SettingService
 from dynatrace.environment_v2.tokens_api import TokenService
@@ -194,6 +195,9 @@ class DynatraceAsync:
         self.settings: SettingService = SettingService(self.__http_client)
         self.plugins: PluginService = PluginService(self.__http_client)
         self.problems: ProblemService = ProblemService(self.__http_client)
+        self.security_problems: SecurityProblemService = SecurityProblemService(
+            self.__http_client
+        )
         self.slos: SloService = SloService(self.__http_client)
         self.smartscape_hosts: SmartScapeHostsService = SmartScapeHostsService(
             self.__http_client
