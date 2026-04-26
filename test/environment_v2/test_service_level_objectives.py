@@ -1,7 +1,6 @@
 from dynatrace import DynatraceAsync
 from dynatrace.environment_v2.service_level_objectives import (
     Slo,
-    SloError,
     SloEvaluationType,
     SloStatus,
 )
@@ -31,7 +30,7 @@ async def test_get(dt: DynatraceAsync):
     assert isinstance(slo.evaluated_percentage, float)
     assert isinstance(slo.error_budget, float)
     assert isinstance(slo.status, SloStatus)
-    assert isinstance(slo.error, SloError)
+    assert isinstance(slo.error, str)
     assert isinstance(slo.use_rate_metric, bool)
     assert isinstance(slo.metric_rate, str)
     assert isinstance(slo.metric_numerator, str)
@@ -53,7 +52,7 @@ async def test_get(dt: DynatraceAsync):
     assert slo.evaluated_percentage == 100.0
     assert slo.error_budget == 2.0
     assert slo.status == SloStatus.SUCCESS
-    assert slo.error == SloError.NONE
+    assert slo.error == "NONE"
     assert slo.metric_rate == ""
     assert slo.metric_numerator == ""
     assert slo.metric_denominator == ""
